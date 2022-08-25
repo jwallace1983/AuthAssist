@@ -11,6 +11,10 @@ namespace AuthAssist
 
         public bool RequireHttps { get; set; } = true;
 
+        internal TimeSpan CookieDuration { get; set; }
+
+        internal bool CookieSlidingExpiration { get; set; }
+
         // Configure auth handler
         public void UseAuthHandler<T>() where T : IAuthHandler
             => this.AuthHandlerType = typeof(T);

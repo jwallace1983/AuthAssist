@@ -17,6 +17,7 @@ namespace AuthAssist.Broker.Handlers
     {
         private readonly IServiceProvider _services;
         private readonly string _endpoint;
+        private readonly Settings _settings;
         private static readonly string[] _methods = new string[] { HttpMethods.Post };
         private static readonly JsonSerializerOptions _jsonOptions = new()
         { 
@@ -28,6 +29,7 @@ namespace AuthAssist.Broker.Handlers
         {
             _services = services;
             _endpoint = $"{settings.Endpoint}/login";
+            _settings = settings;
         }
 
         public Task<bool> CanHandle(HttpContext context)
@@ -50,6 +52,8 @@ namespace AuthAssist.Broker.Handlers
                     var claims = new List<Claim> { new Claim(ClaimTypes.Name, authResult.Username) };
                     await authHandler.AppendClaims(authResult.Username, claims);
                     context.User = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
+                    authResult.ExpiresUtc = DateTime.UtcNow.Add(_settings.CookieDuration);
+                    authResult.SlidingExpiration = _settings.CookieSlidingExpiration;
                     await context.SignInAsync(context.User);
                     authResult.Claims = claims.ToDictionary(claim => claim.Type, claim => claim.Value);
                 }

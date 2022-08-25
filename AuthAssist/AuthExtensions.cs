@@ -35,6 +35,8 @@ namespace Microsoft.Extensions.DependencyInjection
                         return System.Threading.Tasks.Task.CompletedTask;
                     };
                     settings.ApplyCookieOptions?.Invoke(options);
+                    settings.CookieDuration = options.ExpireTimeSpan;
+                    settings.CookieSlidingExpiration = options.SlidingExpiration;
                 });
             services.AddAuthorization(options => settings.ApplyAuthPolicies(options));
             return services;

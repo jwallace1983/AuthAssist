@@ -123,7 +123,9 @@ The response will contain the results of the authentication. If successful, an H
     "Username": "user",
     "Claims": {
         "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": "user"
-    }
+    },
+    "ExpiresUtc": "2022-08-25T04:50:48.9066792Z",
+    "SlidingExpiration": true
 }
 ```
 

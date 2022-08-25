@@ -60,13 +60,11 @@ namespace AuthAssist.Broker
 
         public static void ShowNotFound(HttpResponse response)
         {
-            response.Clear();
             response.StatusCode = 404;
         }
 
         public static async Task ShowError(HttpResponse response, Exception ex)
         {
-            response.Clear();
             response.StatusCode = 500;
             await response.WriteAsync("Application Error");
             Console.WriteLine(ex.Message);
