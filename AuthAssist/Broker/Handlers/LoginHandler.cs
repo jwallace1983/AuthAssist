@@ -21,7 +21,7 @@ namespace AuthAssist.Broker.Handlers
         private static readonly JsonSerializerOptions _jsonOptions = new()
         { 
             PropertyNameCaseInsensitive = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
 
         public LoginHandler(Settings settings, IServiceProvider services)

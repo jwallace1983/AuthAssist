@@ -13,7 +13,6 @@ namespace Samples.WebApiNet6.Controllers
         [HttpGet("secure"), Authorize]
         public string GetSecure() => "Secure endpoint: " + User.Identity.Name;
 
-
         [HttpGet("admin"), Authorize(Policies.ADMIN)]
         public string GetClaim() => "Admin endpoint: " + User.Identity.Name;
     }
