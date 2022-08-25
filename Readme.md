@@ -143,3 +143,42 @@ A `POST` or `GET` request will log the user out by unsetting the HTTP-only cooki
 GET: https://path-to-site/api/auth/logout
 POST: https://path-to-site/api/auth/logout
 ```
+
+## Configure authentication options
+
+The API implements the following default behaviors for authentication options:
+
+* Cookies have a sliding expiration of 20 minutes
+* If an endpoint requires authentication, an empty response with `401` status code is provided.
+* If an endpoint is authenticated but user does not meet authorization policies, an empty response with `403` status code is provided.
+* Cookies are only set as HTTP-only cookies to avoid sharing any details with SPA applications beyond the response result.
+
+Any of the cookie authentication options can be adjusted:
+
+```
+builder.Services.AddAuthAssist(settings =>
+{
+    settings.UseAuthHandler<AuthHandler>();
+    settings.UseAuthPolicies(Policies.ApplyPolicies);
+    settings.UseCookieOptions(options =>
+    {
+        options.SlidingExpiration = false;
+        options.ExpireTimeSpan = System.TimeSpan.FromMinutes(60);
+    });
+});
+```
+
+Also, the cookie policy can also be customized:
+
+```
+builder.Services.AddAuthAssist(settings =>
+{
+    settings.UseAuthHandler<AuthHandler>();
+    settings.UseAuthPolicies(Policies.ApplyPolicies);
+    settings.CookiePolicyOptions = new CookiePolicyOptions
+    {
+        Secure = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always,
+        HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
+    };
+});
+```

@@ -1,11 +1,9 @@
 ﻿using AuthAssist;
 using AuthAssist.Broker;
 using AuthAssist.Broker.Handlers;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using System;
-using System.Security.Claims;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -36,6 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         context.Response.StatusCode = 401;
                         return System.Threading.Tasks.Task.CompletedTask;
                     };
+                    settings.ApplyCookieOptions?.Invoke(options);
                 });
             services.AddAuthorization(options => settings.ApplyAuthPolicies(options));
             return services;
@@ -43,10 +42,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IApplicationBuilder UseAuthAssist(this IApplicationBuilder app)
         {
-            app.UseCookiePolicy(new CookiePolicyOptions
-            {
-                HttpOnly = AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
-            });
+            var settings = app.ApplicationServices.GetService<Settings>();
+            if (settings?.CookiePolicyOptions != null)
+                app.UseCookiePolicy(settings.CookiePolicyOptions);
             app.UseAuthentication();
             app.UseAuthorization();
             app.Use(async (context, next) =>
