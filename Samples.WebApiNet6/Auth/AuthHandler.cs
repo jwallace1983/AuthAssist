@@ -19,11 +19,13 @@ namespace Samples.WebApiNet6.Auth
             return Task.CompletedTask;
         }
 
+        public Task<bool> VerifyUser(ClaimsPrincipal user) => Task.FromResult(true);
+
         public Task<AuthResult> AuthenticateUser(AuthRequest request)
         {
             return _validUsers.Contains(request.Username, StringComparer.OrdinalIgnoreCase)
-                ? Task.FromResult(new AuthResult { IsSuccess = true, Username = request.Username })
-                : Task.FromResult(new AuthResult { IsSuccess = false });
+                ? Task.FromResult(new AuthResult { Username = request.Username })
+                : Task.FromResult(new AuthResult { Error = "auth.failed" });
         }
     }
 }

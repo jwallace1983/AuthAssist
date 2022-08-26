@@ -8,6 +8,10 @@ builder.Services.AddAuthAssist(settings =>
 {
     settings.UseAuthHandler<AuthHandler>();
     settings.UseAuthPolicies(Policies.ApplyPolicies);
+    settings.UseCookieOptions(options =>
+    {
+        options.ExpireTimeSpan = System.TimeSpan.FromMinutes(5);
+    });
 });
 builder.Services.AddControllers();
 var app = builder.Build();

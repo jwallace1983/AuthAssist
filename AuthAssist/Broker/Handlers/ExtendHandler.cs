@@ -6,22 +6,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AuthAssist.Broker.Handlers
 {
-    public class LoginHandler : IRequestHandler
+    public class ExtendHandler : IRequestHandler
     {
         private readonly IServiceProvider _services;
         private readonly string _endpoint;
         private readonly Settings _settings;
-        private static readonly string[] _methods = new string[] { HttpMethods.Post };
+        private static readonly string[] _methods = new string[] { HttpMethods.Get, HttpMethods.Post };
 
-        public LoginHandler(Settings settings, IServiceProvider services)
+        public ExtendHandler(Settings settings, IServiceProvider services)
         {
             _services = services;
-            _endpoint = $"{settings.Endpoint}/login";
+            _endpoint = $"{settings.Endpoint}/extend";
             _settings = settings;
         }
 
@@ -36,8 +35,7 @@ namespace AuthAssist.Broker.Handlers
             var authHandler = _services.GetService<IAuthHandler>();
             if (authHandler == null)
                 throw new ApplicationException("auth.config.error");
-            var authRequest = await JsonSerializer.DeserializeAsync<AuthRequest>(context.Request.Body, AuthExtensions.JsonOptions);
-            var authResult = await authHandler.AuthenticateUser(authRequest);
+            var authResult = await GetAuthResult(authHandler, context.User);
             if (authResult.IsSuccess)
             {
                 var claims = new List<Claim> { new Claim(ClaimTypes.Name, authResult.Username) };
@@ -47,11 +45,16 @@ namespace AuthAssist.Broker.Handlers
                 await context.SignInAsync(context.User);
                 authResult.Claims = claims.ToDictionary(claim => claim.Type, claim => claim.Value);
             }
-            else
-            {
-                authResult.Error = "user.invalid";
-            }
             await context.Response.WriteAsJsonAsync(authResult, AuthExtensions.JsonOptions);
+        }
+
+        public static async Task<AuthResult> GetAuthResult(IAuthHandler authHandler, ClaimsPrincipal user)
+        {
+            if (user.Identity.IsAuthenticated == false)
+                return new AuthResult { Error = "user.invalid" };
+            return await authHandler.VerifyUser(user)
+                ? new AuthResult { Username = user.Identity.Name }
+                : new AuthResult { Error = "user.invalid" };
         }
     }
 }

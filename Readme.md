@@ -36,12 +36,13 @@ public class AuthHandler : IAuthHandler
         return Task.CompletedTask;
     }
 
+    public Task<bool> VerifyUser(ClaimsPrincipal user) => Task.FromResult(true);
+
     public Task<AuthResult> AuthenticateUser(AuthRequest request)
     {
-        // Perform app-specific authentication (including auto-disable, hashing, etc.)
         return _validUsers.Contains(request.Username, StringComparer.OrdinalIgnoreCase)
-            ? Task.FromResult(new AuthResult { IsSuccess = true, Username = request.Username })
-            : Task.FromResult(new AuthResult { IsSuccess = false });
+            ? Task.FromResult(new AuthResult { Username = request.Username })
+            : Task.FromResult(new AuthResult { Error = "auth.failed" });
     }
 }
 ```
@@ -124,16 +125,47 @@ The response will contain the results of the authentication. If successful, an H
     "Claims": {
         "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": "user"
     },
-    "ExpiresUtc": "2022-08-25T04:50:48.9066792Z",
-    "SlidingExpiration": true
+    "ExpiresUtc": "2022-08-25T04:50:48.9066792Z"
 }
 ```
 
-If the response is not successful, the response will only contain the result.
+If the response is not successful, the response will only contain the result and a provided error code.
 
 ```
 {
-    "IsSuccess": false
+    "IsSuccess": false,
+    "Error": "auth.invalid"
+}
+```
+
+### Extend (/api/auth/extend)
+
+A `GET` or `POST request should be used to authenticate.
+
+```
+GET: https://path-to-site/api/auth/extend
+POST: https://path-to-site/api/auth/extend
+```
+
+The response will contain the results of the authentication. If successful, an HTTP-only cookie will be set for the user.
+
+```
+{
+    "IsSuccess": true,
+    "Username": "user",
+    "Claims": {
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": "user"
+    },
+    "ExpiresUtc": "2022-08-25T04:50:48.9066792Z"
+}
+```
+
+If the response is not successful, the response will only contain the result and a provided error code.
+
+```
+{
+    "IsSuccess": false,
+    "Error": "auth.invalid"
 }
 ```
 
@@ -150,7 +182,7 @@ POST: https://path-to-site/api/auth/logout
 
 The API implements the following default behaviors for authentication options:
 
-* Cookies have a sliding expiration of 20 minutes
+* Cookies have a default expiration of 20 minutes
 * If an endpoint requires authentication, an empty response with `401` status code is provided.
 * If an endpoint is authenticated but user does not meet authorization policies, an empty response with `403` status code is provided.
 * Cookies are only set as HTTP-only cookies to avoid sharing any details with SPA applications beyond the response result.
@@ -164,7 +196,7 @@ builder.Services.AddAuthAssist(settings =>
     settings.UseAuthPolicies(Policies.ApplyPolicies);
     settings.UseCookieOptions(options =>
     {
-        options.SlidingExpiration = false;
+        options.SlidingExpiration = true;
         options.ExpireTimeSpan = System.TimeSpan.FromMinutes(60);
     });
 });
@@ -184,3 +216,23 @@ builder.Services.AddAuthAssist(settings =>
     };
 });
 ```
+
+## Error Codes
+
+When an error occurs, a response AuthResult object is returned, such as
+
+```
+{
+    "IsSuccess": false,
+    "Error": "user.invalid"
+}
+```
+
+The following error codes may be returned:
+
+* auth.config.error - Service not configured, probably from missing IAuthHandler implementation
+* user.invalid - The provided user is not valid for the operation (example: extended an unauthenticated session)
+* app.error - Some other error occurred within the application
+
+If any injected code, such as from an implementation of IAuthHandler, generates an `ApplicationException`, then the message
+of the exception will be returned as the `Error` property in the response.

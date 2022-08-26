@@ -4,11 +4,19 @@ using AuthAssist.Broker.Handlers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using System;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class AuthExtensions
     {
+        public static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        };
+
         public static IServiceCollection AddAuthAssist(this IServiceCollection services, Action<Settings> applySettings = null)
         {
             var settings = new Settings();
@@ -17,13 +25,14 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSingleton<IBrokerService, BrokerService>()
                 .AddTransient<IRequestHandler, LoginHandler>()
                 .AddTransient<IRequestHandler, LogoutHandler>()
+                .AddTransient<IRequestHandler, ExtendHandler>()
                 .AddTransient(typeof(IAuthHandler), settings.AuthHandlerType)
                 .AddSingleton(settings);
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
                     options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
-                    options.SlidingExpiration = true;
+                    options.SlidingExpiration = false;
                     options.Events.OnRedirectToAccessDenied = context =>
                     {
                         context.Response.StatusCode = 403;

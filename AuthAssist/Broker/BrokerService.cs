@@ -65,9 +65,10 @@ namespace AuthAssist.Broker
 
         public static async Task ShowError(HttpResponse response, Exception ex)
         {
-            response.StatusCode = 500;
-            await response.WriteAsync("Application Error");
-            Console.WriteLine(ex.Message);
+            await response.WriteAsJsonAsync(new AuthResult
+            {
+                Error = ex is ApplicationException ? ex.Message : "app.error"
+            });
         }
     }
 }

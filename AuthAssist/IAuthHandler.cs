@@ -8,6 +8,8 @@ namespace AuthAssist
     {
         Task<AuthResult> AuthenticateUser(AuthRequest request);
 
+        Task<bool> VerifyUser(ClaimsPrincipal user);
+
         Task AppendClaims(string user, List<Claim> claims);
     }
 }
