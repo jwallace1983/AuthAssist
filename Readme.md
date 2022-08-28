@@ -217,6 +217,18 @@ builder.Services.AddAuthAssist(settings =>
 });
 ```
 
+It is also possible to customize how "not found" or error handling is managed.
+
+```
+builder.Services.AddAuthAssist(settings =>
+{
+    settings.UseAuthHandler<AuthHandler>();
+    settings.UseAuthPolicies(Policies.ApplyPolicies);
+    settings.UseNotFoundHandler(context => { /* Customize */ return Task.CompletedTask; });
+    settings.UseErrorHandler((context, ex) => { /* Customize */ return Task.CompletedTask; });
+});
+```
+
 ## Error Codes
 
 When an error occurs, a response AuthResult object is returned, such as

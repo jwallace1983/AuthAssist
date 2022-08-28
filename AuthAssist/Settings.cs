@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using AuthAssist.Broker;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using System;
+using System.Threading.Tasks;
 
 namespace AuthAssist
 {
@@ -21,21 +24,27 @@ namespace AuthAssist
         internal Type AuthHandlerType { get; private set; } = typeof(DefaultAuthHandler);
 
         // Configure auth policies
-        public delegate void ApplyAuthPolicyDelegate(AuthorizationOptions options);
-        public void UseAuthPolicies(ApplyAuthPolicyDelegate applyAuthPolicies)
+        public void UseAuthPolicies(Action<AuthorizationOptions> applyAuthPolicies)
             => this.ApplyAuthPolicies = applyAuthPolicies;
-        internal ApplyAuthPolicyDelegate ApplyAuthPolicies { get; private set; } = options => { };
+        internal Action<AuthorizationOptions> ApplyAuthPolicies { get; private set; } = options => { };
 
         // Configure cookie options
-        public delegate void ApplyCookieOptionsDelegate(CookieAuthenticationOptions options);
-        public void UseCookieOptions(ApplyCookieOptionsDelegate applyCookieOptions)
+        public void UseCookieOptions(Action<CookieAuthenticationOptions> applyCookieOptions)
             => this.ApplyCookieOptions = applyCookieOptions;
-        internal ApplyCookieOptionsDelegate ApplyCookieOptions { get; private set; } = options => { };
+        internal Action<CookieAuthenticationOptions> ApplyCookieOptions { get; private set; } = options => { };
 
         // Configure cookie policy
         public CookiePolicyOptions CookiePolicyOptions { get; set; } = new CookiePolicyOptions
         {
             HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
         };
+
+        public void UseNotFoundHandler(Func<HttpContext, Task> handler)
+            => this.HandleNotFound = handler;
+        internal Func<HttpContext, Task> HandleNotFound { get; private set; } = BrokerService.ShowNotFound;
+
+        public void UseErrorHandler(Func<HttpContext, Exception, Task> handler)
+            => this.HandleError = handler;
+        internal Func<HttpContext, Exception, Task> HandleError { get; private set; } = BrokerService.ShowError;
     }
 }

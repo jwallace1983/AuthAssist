@@ -43,12 +43,12 @@ namespace AuthAssist.Broker
                 }
 
                 // No handler matched, so show not found
-                ShowNotFound(context.Response);
+                await _settings.HandleNotFound(context);
             }
             catch (Exception ex)
             {
                 // Display the error message
-                await ShowError(context.Response, ex);
+                await _settings.HandleError(context, ex);
             }
         }
 
@@ -58,14 +58,15 @@ namespace AuthAssist.Broker
                 && httpRequest.Path.Value.StartsWith(_settings.Endpoint, StringComparison.OrdinalIgnoreCase); // Match path
         }
 
-        public static void ShowNotFound(HttpResponse response)
+        public static Task ShowNotFound(HttpContext context)
         {
-            response.StatusCode = 404;
+            context.Response.StatusCode = 404;
+            return Task.CompletedTask;
         }
 
-        public static async Task ShowError(HttpResponse response, Exception ex)
+        public static async Task ShowError(HttpContext context, Exception ex)
         {
-            await response.WriteAsJsonAsync(new AuthResult
+            await context.Response.WriteAsJsonAsync(new AuthResult
             {
                 Error = ex is ApplicationException ? ex.Message : "app.error"
             });
