@@ -45,7 +45,7 @@ namespace AuthAssist.Broker.Handlers
                 await context.SignInAsync(context.User);
                 authResult.Claims = claims.ToDictionary(claim => claim.Type, claim => claim.Value);
             }
-            await context.Response.WriteAsJsonAsync(authResult, AuthExtensions.JsonOptions);
+            await context.Response.WriteAsJsonAsync(authResult, _settings.JsonSerializerOptions);
         }
 
         public static async Task<AuthResult> GetAuthResult(IAuthHandler authHandler, ClaimsPrincipal user)

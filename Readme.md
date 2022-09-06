@@ -199,6 +199,7 @@ builder.Services.AddAuthAssist(settings =>
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = System.TimeSpan.FromMinutes(60);
     });
+    settings.JsonSerializerOptions; // Customize any json serialization options
 });
 ```
 

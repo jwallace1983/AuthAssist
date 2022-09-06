@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using System;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AuthAssist
@@ -17,6 +19,14 @@ namespace AuthAssist
         internal TimeSpan CookieDuration { get; set; }
 
         internal bool CookieSlidingExpiration { get; set; }
+
+        public JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        };
 
         // Configure auth handler
         public void UseAuthHandler<T>() where T : IAuthHandler

@@ -36,7 +36,7 @@ namespace AuthAssist.Broker.Handlers
             var authHandler = _services.GetService<IAuthHandler>();
             if (authHandler == null)
                 throw new ApplicationException("auth.config.error");
-            var authRequest = await JsonSerializer.DeserializeAsync<AuthRequest>(context.Request.Body, AuthExtensions.JsonOptions);
+            var authRequest = await JsonSerializer.DeserializeAsync<AuthRequest>(context.Request.Body, _settings.JsonSerializerOptions);
             var authResult = await authHandler.AuthenticateUser(authRequest);
             if (authResult.IsSuccess)
             {
@@ -51,7 +51,7 @@ namespace AuthAssist.Broker.Handlers
             {
                 authResult.Error = "user.invalid";
             }
-            await context.Response.WriteAsJsonAsync(authResult, AuthExtensions.JsonOptions);
+            await context.Response.WriteAsJsonAsync(authResult, _settings.JsonSerializerOptions);
         }
     }
 }

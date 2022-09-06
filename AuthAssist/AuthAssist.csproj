@@ -4,7 +4,7 @@
 		<TargetFramework>net6</TargetFramework>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>disable</Nullable>
-		<Version>1.0.2</Version>
+		<Version>1.0.3</Version>
 		<Title>AuthAssist</Title>
 		<Authors>Simplelink</Authors>
 		<Company>Simplelink</Company>
@@ -12,7 +12,7 @@
 		<Description>A lightweight, opinionated helper library for Microsoft Authentication configuration.</Description>
 		<RepositoryUrl>https://github.com/jwallace1983/AuthAssist</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageReleaseNotes>Customize error and not found handling</PackageReleaseNotes>
+		<PackageReleaseNotes>Customize Json serialization options (default to camelCase)</PackageReleaseNotes>
 		<PackageProjectUrl>https://github.com/jwallace1983/AuthAssist</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
