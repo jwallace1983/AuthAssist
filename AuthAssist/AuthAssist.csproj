@@ -1,18 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>disable</Nullable>
-		<Version>1.0.3</Version>
+		<Version>1.0.5</Version>
 		<Title>AuthAssist</Title>
 		<Authors>Simplelink</Authors>
 		<Company>Simplelink</Company>
-		<Copyright>2022</Copyright>
+		<Copyright>2025</Copyright>
 		<Description>A lightweight, opinionated helper library for Microsoft Authentication configuration.</Description>
 		<RepositoryUrl>https://github.com/jwallace1983/AuthAssist</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageReleaseNotes>Customize Json serialization options (default to camelCase)</PackageReleaseNotes>
+		<PackageReleaseNotes>Update to .NET 8</PackageReleaseNotes>
 		<PackageProjectUrl>https://github.com/jwallace1983/AuthAssist</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
