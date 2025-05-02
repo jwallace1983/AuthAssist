@@ -9,11 +9,11 @@
     }
   },
   "profiles": {
-    "Samples.WebApiNet6": {
+    "Samples.WebApiNet": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": false,
-      "launchUrl": "api/public",
+      "launchBrowser": true,
+      "launchUrl": "test/run",
       "applicationUrl": "https://localhost:3000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

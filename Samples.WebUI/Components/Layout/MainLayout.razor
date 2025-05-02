@@ -3,7 +3,12 @@
 @inject NavigationManager navigationManager
 @inherits LayoutComponentBase
 
-@Body
+<div class="main-layout">
+    <NavMenu />
+    <main>
+        @Body
+    </main>
+</div>
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.

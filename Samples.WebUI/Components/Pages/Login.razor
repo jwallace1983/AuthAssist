@@ -1,11 +1,38 @@
 ﻿@page "/Login"
+@inject AuthService _authService
+@inject NavigationManager _navigationManager;
+@using AuthAssist
+@using Samples.WebUI.Auth
 
 <PageTitle>Login</PageTitle>
 
-<h1>Login</h1>
+<h1>Logging in as "User"</h1>
 
-<p>Log into the application:</p>
+<p>...</p>
+
+@if (string.IsNullOrEmpty(error) == false)
+{
+    <h4>Error</h4>
+    <p>
+        @error
+    </p>
+}
+
 
 @code {
+    string error = "";
 
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        var response = await _authService.Login(new() { Username = "user", Password = "welcome123" });
+        if (response.IsSuccess)
+        {
+            _navigationManager.NavigateTo("/user");
+        }
+        else
+        {
+            this.error = response.Error;
+        }
+    }
 }

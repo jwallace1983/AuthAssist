@@ -6,6 +6,7 @@ using Samples.WebUI.Components;
 
 // Build the app
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddTransient<AuthService>();
 builder.Services.AddAuthAssist(settings =>
 {
     settings.RedirectToLogin = "/login";
@@ -18,6 +19,7 @@ builder.Services.AddAuthAssist(settings =>
 });
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddCascadingAuthenticationState();
 var app = builder.Build();
 
 // Run the app
