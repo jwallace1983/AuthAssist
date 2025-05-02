@@ -6,15 +6,10 @@ using System.Threading.Tasks;
 
 namespace AuthAssist.Broker.Handlers
 {
-    public class LogoutHandler : IRequestHandler
+    public class LogoutHandler(Settings settings) : IRequestHandler
     {
-        private readonly string _endpoint;
-        private static readonly string[] _methods = new string[] { HttpMethods.Post, HttpMethods.Get };
-
-        public LogoutHandler(Settings settings)
-        {
-            _endpoint = $"{settings.Endpoint}/logout";
-        }
+        private readonly string _endpoint = $"{settings.Endpoint}/logout";
+        private static readonly string[] _methods = [ HttpMethods.Post, HttpMethods.Get ];
 
         public Task<bool> CanHandle(HttpContext context)
         {

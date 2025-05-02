@@ -11,19 +11,12 @@ using System.Threading.Tasks;
 
 namespace AuthAssist.Broker.Handlers
 {
-    public class LoginHandler : IRequestHandler
+    public class LoginHandler(Settings settings, IServiceProvider services) : IRequestHandler
     {
-        private readonly IServiceProvider _services;
-        private readonly string _endpoint;
-        private readonly Settings _settings;
-        private static readonly string[] _methods = new string[] { HttpMethods.Post };
-
-        public LoginHandler(Settings settings, IServiceProvider services)
-        {
-            _services = services;
-            _endpoint = $"{settings.Endpoint}/login";
-            _settings = settings;
-        }
+        private readonly IServiceProvider _services = services;
+        private readonly string _endpoint = $"{settings.Endpoint}/login";
+        private readonly Settings _settings = settings;
+        private static readonly string[] _methods = [ HttpMethods.Post ];
 
         public Task<bool> CanHandle(HttpContext context)
         {
@@ -33,14 +26,13 @@ namespace AuthAssist.Broker.Handlers
 
         public async Task ProcessRequest(HttpContext context)
         {
-            var authHandler = _services.GetService<IAuthHandler>();
-            if (authHandler == null)
-                throw new ApplicationException("auth.config.error");
+            var authHandler = _services.GetService<IAuthHandler>()
+                ?? throw new ApplicationException("auth.config.error");
             var authRequest = await JsonSerializer.DeserializeAsync<AuthRequest>(context.Request.Body, _settings.JsonSerializerOptions);
             var authResult = await authHandler.AuthenticateUser(authRequest);
             if (authResult.IsSuccess)
             {
-                var claims = new List<Claim> { new Claim(ClaimTypes.Name, authResult.Username) };
+                var claims = new List<Claim> { new (ClaimTypes.Name, authResult.Username) };
                 await authHandler.AppendClaims(authResult.Username, claims);
                 context.User = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
                 authResult.ExpiresUtc = DateTime.UtcNow.Add(_settings.CookieDuration);
