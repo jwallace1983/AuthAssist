@@ -10,4 +10,8 @@
 	  <ProjectReference Include="..\AuthAssist\AuthAssist.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Demo\" />
+	</ItemGroup>
+
 </Project>
