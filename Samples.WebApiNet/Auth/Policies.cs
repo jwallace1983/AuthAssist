@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace Samples.WebApiNet6.Auth
+namespace Samples.WebApiDemo.Auth
 {
     public static class Policies
     {

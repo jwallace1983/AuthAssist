@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Samples.WebApiNet6.Auth;
+using Samples.WebApiDemo.Auth;
 
-namespace Samples.WebApiNet6.Controllers
+namespace Samples.WebApiDemo.Controllers
 {
     [ApiController, Route("[controller]")]
     public class HelloController : ControllerBase

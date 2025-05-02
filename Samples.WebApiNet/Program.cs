@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Samples.WebApiNet6.Auth;
+using Samples.WebApiDemo.Auth;
 
 // Build the app
 var builder = WebApplication.CreateBuilder(args);

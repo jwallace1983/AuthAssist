@@ -5,11 +5,11 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Samples.WebApiNet6.Auth
+namespace Samples.WebApiDemo.Auth
 {
     public class AuthHandler : IAuthHandler
     {
-        private static readonly string[] _validUsers = new string[] { "user", "admin" };
+        private static readonly string[] _validUsers = [ "user", "admin" ];
 
         public Task AppendClaims(string username, List<Claim> claims)
         {
