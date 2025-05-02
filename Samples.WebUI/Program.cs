@@ -1,10 +1,20 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Samples.WebUI.Auth;
 using Samples.WebUI.Components;
 
 // Build the app
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddAuthAssist(settings =>
+{
+    settings.UseAuthHandler<AuthHandler>();
+    settings.UseAuthPolicies(Policies.ApplyPolicies);
+    settings.UseCookieOptions(options =>
+    {
+        options.ExpireTimeSpan = System.TimeSpan.FromMinutes(5);
+    });
+});
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 var app = builder.Build();
@@ -17,6 +27,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 app.UseHttpsRedirection();
+app.UseAuthAssist();
 app.UseStaticFiles();
 app.UseAntiforgery();
 app.MapRazorComponents<App>()
