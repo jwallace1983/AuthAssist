@@ -27,12 +27,18 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.SlidingExpiration = false;
                     options.Events.OnRedirectToAccessDenied = context =>
                     {
-                        context.Response.StatusCode = 403;
+                        if (settings.RedirectToAccessDenied != null)
+                            context.Response.Redirect(settings.RedirectToAccessDenied);
+                        else
+                            context.Response.StatusCode = 403;
                         return System.Threading.Tasks.Task.CompletedTask;
                     };
                     options.Events.OnRedirectToLogin = context =>
                     {
-                        context.Response.StatusCode = 401;
+                        if (settings.RedirectToLogin != null)
+                            context.Response.Redirect(settings.RedirectToLogin);
+                        else
+                            context.Response.StatusCode = 401;
                         return System.Threading.Tasks.Task.CompletedTask;
                     };
                     settings.ApplyCookieOptions?.Invoke(options);

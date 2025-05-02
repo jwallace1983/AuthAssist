@@ -8,6 +8,7 @@ using Samples.WebUI.Components;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuthAssist(settings =>
 {
+    settings.RedirectToLogin = "/login";
     settings.UseAuthHandler<AuthHandler>();
     settings.UseAuthPolicies(Policies.ApplyPolicies);
     settings.UseCookieOptions(options =>

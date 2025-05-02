@@ -14,6 +14,10 @@ namespace AuthAssist
     {
         public string Endpoint { get; set; } = "/api/auth";
 
+        public string RedirectToLogin { get; set; } = null;
+
+        public string RedirectToAccessDenied { get; set; } = null;
+
         public bool RequireHttps { get; set; } = true;
 
         internal TimeSpan CookieDuration { get; set; }
