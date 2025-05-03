@@ -1,18 +1,20 @@
-﻿using AuthAssist.Broker;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using System.Threading.Tasks;
+using AuthAssist.Providers;
 
 namespace AuthAssist
 {
     public class Settings
     {
-        public string Endpoint { get; set; } = "/api/auth";
+        public void AddGoogle(string clientId, string clientSecret)
+            => this.GoogleIdp = new GoogleIdp(clientId, clientSecret);
+        internal GoogleIdp GoogleIdp = null;
+
+        public string Prefix { get; set; } = "/api/auth";
 
         public string RedirectToLogin { get; set; } = null;
 
@@ -32,11 +34,6 @@ namespace AuthAssist
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
 
-        // Configure auth handler
-        public void UseAuthHandler<T>() where T : IAuthHandler
-            => this.AuthHandlerType = typeof(T);
-        internal Type AuthHandlerType { get; private set; } = typeof(DefaultAuthHandler);
-
         // Configure auth policies
         public void UseAuthPolicies(Action<AuthorizationOptions> applyAuthPolicies)
             => this.ApplyAuthPolicies = applyAuthPolicies;
@@ -53,12 +50,6 @@ namespace AuthAssist
             HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
         };
 
-        public void UseNotFoundHandler(Func<HttpContext, Task> handler)
-            => this.HandleNotFound = handler;
-        internal Func<HttpContext, Task> HandleNotFound { get; private set; } = BrokerService.ShowNotFound;
 
-        public void UseErrorHandler(Func<HttpContext, Exception, Task> handler)
-            => this.HandleError = handler;
-        internal Func<HttpContext, Exception, Task> HandleError { get; private set; } = BrokerService.ShowError;
     }
 }

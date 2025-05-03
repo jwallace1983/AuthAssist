@@ -22,6 +22,7 @@ namespace Samples.WebApiDemo.Controllers
                 LoginAsUser = "https://localhost:3000/test/loginAsUser",
                 LoginAsAdmin = "https://localhost:3000/test/loginAsAdmin",
                 LoginInvalid = "https://localhost:3000/test/loginInvalid",
+                LoginGoogle = "https://localhost:3000/test/LoginGoogle",
                 Logout = "https://localhost:3000/test/logout",
             });
         }
@@ -83,6 +84,12 @@ namespace Samples.WebApiDemo.Controllers
                     Error = ex.Message,
                 });
             }
+        }
+
+        [HttpGet("loginGoogle")]
+        public async Task<IActionResult> LoginGoogle()
+        {
+            return await Task.FromResult(Redirect("https://localhost:3000/api/auth/google/start"));
         }
     }
 }

@@ -9,16 +9,20 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class AuthExtensions
     {
-        public static IServiceCollection AddAuthAssist(this IServiceCollection services, Action<Settings> applySettings = null)
+        public static IServiceCollection AddAuthAssist<TAuthHandlerType>(
+            this IServiceCollection services,
+            Action<AuthAssist.Settings> applySettings = null)
+            where TAuthHandlerType : IAuthHandler
         {
-            var settings = new Settings();
+            var settings = new AuthAssist.Settings();
             applySettings?.Invoke(settings);
             services
                 .AddSingleton<IBrokerService, BrokerService>()
                 .AddTransient<IRequestHandler, LoginHandler>()
                 .AddTransient<IRequestHandler, LogoutHandler>()
                 .AddTransient<IRequestHandler, ExtendHandler>()
-                .AddTransient(typeof(IAuthHandler), settings.AuthHandlerType)
+                .AddTransient<IRequestHandler, GoogleStartHandler>()
+                .AddTransient(typeof(IAuthHandler), typeof(TAuthHandlerType))
                 .AddSingleton(settings);
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -51,7 +55,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IApplicationBuilder UseAuthAssist(this IApplicationBuilder app)
         {
-            var settings = app.ApplicationServices.GetService<Settings>();
+            var settings = app.ApplicationServices.GetService<AuthAssist.Settings>();
             if (settings?.CookiePolicyOptions != null)
                 app.UseCookiePolicy(settings.CookiePolicyOptions);
             app.UseAuthentication();

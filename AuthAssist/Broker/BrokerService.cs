@@ -1,6 +1,4 @@
-﻿using AuthAssist.Broker.Handlers;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,61 +13,36 @@ namespace AuthAssist.Broker
     public class BrokerService : IBrokerService
     {
         private readonly Settings _settings;
-        private readonly IEnumerable<IRequestHandler> _handlers;
+        private readonly Dictionary<string, IRequestHandler> _handlers = new(StringComparer.OrdinalIgnoreCase);
 
-        public BrokerService(Settings settings, IServiceProvider services)
+        public BrokerService(Settings options, IEnumerable<IRequestHandler> handlers)
         {
-            _settings = settings;
-            _handlers = services.GetServices<IRequestHandler>();
+            _settings = options;
+            foreach (var handler in handlers)
+            {
+                var key = GetKey(handler.Method, handler.Endpoint);
+                _handlers[key] = handler;
+            }
+        }
+
+        public static string GetKey<TMethod>(TMethod method, string endpoint)
+            => $"{method}|{endpoint}";
+
+        public bool TryGetHandler(HttpContext context, out IRequestHandler handler)
+        {
+            handler = null;
+            if (_settings.RequireHttps && !context.Request.IsHttps)
+                return false; // Guard: Invalid https request
+            string key = GetKey(context.Request.Method, context.Request.Path.Value);
+            return _handlers.TryGetValue(key, out handler);
         }
 
         public async Task Process(HttpContext context, Func<Task> next)
         {
-            if (!this.ValidateRequest(context.Request))
-            {
-                await next(); // Guard: do not process
-                return;
-            }
-            try
-            {
-                // Use handler to process request
-                foreach (var handler in _handlers)
-                {
-                    if (await handler.CanHandle(context))
-                    {
-                        await handler.ProcessRequest(context);
-                        return; // Stop processing
-                    }
-                }
-
-                // No handler matched, so show not found
-                await _settings.HandleNotFound(context);
-            }
-            catch (Exception ex)
-            {
-                // Display the error message
-                await _settings.HandleError(context, ex);
-            }
-        }
-
-        public bool ValidateRequest(HttpRequest httpRequest)
-        {
-            return (!_settings.RequireHttps || httpRequest.IsHttps) // Require https if configured
-                && httpRequest.Path.Value.StartsWith(_settings.Endpoint, StringComparison.OrdinalIgnoreCase); // Match path
-        }
-
-        public static Task ShowNotFound(HttpContext context)
-        {
-            context.Response.StatusCode = 404;
-            return Task.CompletedTask;
-        }
-
-        public static async Task ShowError(HttpContext context, Exception ex)
-        {
-            await context.Response.WriteAsJsonAsync(new AuthResult
-            {
-                Error = ex is ApplicationException ? ex.Message : "app.error"
-            });
+            if (this.TryGetHandler(context, out var handler))
+                await handler.ProcessRequest(context);
+            else
+                await next(); // No handler matched, so proceed in pipeline
         }
     }
 }

@@ -4,14 +4,14 @@ using Samples.WebApiDemo.Auth;
 
 // Build the app
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddAuthAssist(settings =>
+builder.Services.AddAuthAssist<AuthHandler>(settings =>
 {
-    settings.UseAuthHandler<AuthHandler>();
     settings.UseAuthPolicies(Policies.ApplyPolicies);
-    settings.UseCookieOptions(options =>
+    settings.UseCookieOptions(cookieOptions =>
     {
-        options.ExpireTimeSpan = System.TimeSpan.FromMinutes(5);
+        cookieOptions.ExpireTimeSpan = System.TimeSpan.FromMinutes(5);
     });
+    settings.AddGoogle(builder.Configuration["SocialAuth:Google:ClientId"], builder.Configuration["SocialAuth:Google:ClientSecret"]);
 });
 builder.Services.AddControllers();
 var app = builder.Build();

@@ -5,6 +5,12 @@ namespace AuthAssist
 {
     public class AuthResult
     {
+        public static AuthResult FromError(string error)
+            => new() { Error = error };
+
+        public static AuthResult FromUsername(string username)
+            => new() { Username = username };
+
         public bool IsSuccess => string.IsNullOrEmpty(this.Error);
 
         public string Username { get; set; }
