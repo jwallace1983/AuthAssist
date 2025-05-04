@@ -13,9 +13,9 @@
 
         public override string UserInfoUrl => "https://graph.microsoft.com/oidc/userinfo";
 
-        public override string ClientId => settings.GoogleIdp.ClientId;
+        public override string ClientId => settings.MicrosoftIdp.ClientId;
 
-        public override string ClientSecret => settings.GoogleIdp.ClientSecret;
+        public override string ClientSecret => settings.MicrosoftIdp.ClientSecret;
 
         public override Settings Settings => settings;
 

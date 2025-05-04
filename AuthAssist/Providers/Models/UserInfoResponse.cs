@@ -4,20 +4,21 @@ namespace AuthAssist.Providers.Models
 {
     public class UserInfoResponse
     {
-        [JsonPropertyName("sub")]
-        public string Id { get; set; }
-
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonPropertyName("given_name")]
+        [JsonPropertyName("givenname")]
         public string FirstName { get; set; }
 
-        [JsonPropertyName("family_name")]
+        [JsonPropertyName("given_name")]
+        public string FirstNameAlternate { set => this.FirstName = value; }
+
+        [JsonPropertyName("familyname")]
         public string LastName { get; set; }
 
-        public string Email { get; set; }
+        [JsonPropertyName("family_name")]
+        public string LastNameAlternate { set => this.LastName = value; }
 
-        public string Picture { get; set; }
+        public string Email { get; set; }
     }
 }

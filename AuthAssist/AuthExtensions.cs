@@ -31,6 +31,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddTransient<IEndpoint, ExtendPage>()
                 .AddTransient<IEndpoint, GooglePage>()
                 .AddTransient<IEndpoint, GoogleCallbackPage>()
+                .AddTransient<IEndpoint, MicrosoftPage>()
+                .AddTransient<IEndpoint, MicrosoftCallbackPage>()
 
                 // Providers
                 .AddTransient<ILocalProvider, LocalProvider>()

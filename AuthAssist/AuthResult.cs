@@ -30,8 +30,6 @@ namespace AuthAssist
                     { ClaimTypes.GivenName, userInfo.FirstName },
                     { ClaimTypes.Surname, userInfo.LastName },
                     { ClaimTypes.Email, userInfo.Email },
-                    { ClaimTypes.NameIdentifier, userInfo.Id },
-                    { ClaimTypes.UserData, userInfo.Picture },
                 },
             };
 

@@ -20,7 +20,9 @@ namespace AuthAssist.Providers
             var authRequest = await JsonSerializer.DeserializeAsync<AuthRequest>(
                 context.Request.Body, _settings.JsonSerializerOptions);
             var authResult = await _authHandler.AuthenticateUser(authRequest);
-            if (authResult.IsSuccess == false)
+            if (authResult.IsSuccess)
+                authResult.Claims[ClaimTypes.AuthenticationMethod] = "local";
+            else
                 authResult.Error = "user.invalid";
             return authResult;
         }
@@ -44,8 +46,6 @@ namespace AuthAssist.Providers
 
         public async Task LoadUser(HttpContext context, AuthResult authResult)
         {
-            const string AUTH_METHOD = "local";
-            authResult.Claims[ClaimTypes.AuthenticationMethod] = AUTH_METHOD;
             context.User = await this.CreatePrincipal(authResult);
             authResult.ExpiresUtc = DateTime.UtcNow.Add(_settings.CookieDuration);
             await context.SignInAsync(context.User);

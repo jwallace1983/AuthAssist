@@ -13,6 +13,8 @@ builder.Services.AddAuthAssist<AuthHandler>(settings =>
     });
     settings.GoogleIdp.ClientId = builder.Configuration["SocialAuth:Google:ClientId"];
     settings.GoogleIdp.ClientSecret = builder.Configuration["SocialAuth:Google:ClientSecret"];
+    settings.MicrosoftIdp.ClientId = builder.Configuration["SocialAuth:Microsoft:ClientId"];
+    settings.MicrosoftIdp.ClientSecret = builder.Configuration["SocialAuth:Microsoft:ClientSecret"];
 });
 builder.Services.AddControllers();
 var app = builder.Build();
