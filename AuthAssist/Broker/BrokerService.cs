@@ -20,7 +20,7 @@ namespace AuthAssist.Broker
             _settings = options;
             foreach (var handler in handlers)
             {
-                var key = GetKey(handler.Method, handler.Endpoint);
+                var key = GetKey(handler.Method, $"{_settings.Prefix}/{handler.Endpoint}");
                 _handlers[key] = handler;
             }
         }

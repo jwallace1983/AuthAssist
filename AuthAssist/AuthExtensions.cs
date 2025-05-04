@@ -17,13 +17,20 @@ namespace Microsoft.Extensions.DependencyInjection
             var settings = new AuthAssist.Settings();
             applySettings?.Invoke(settings);
             services
+                // User-provided auth handler
+                .AddTransient(typeof(IAuthHandler), typeof(TAuthHandlerType))
+
+                // Routing
                 .AddSingleton<IBrokerService, BrokerService>()
                 .AddTransient<IRequestHandler, LoginHandler>()
                 .AddTransient<IRequestHandler, LogoutHandler>()
                 .AddTransient<IRequestHandler, ExtendHandler>()
-                .AddTransient<IRequestHandler, GoogleStartHandler>()
-                .AddTransient(typeof(IAuthHandler), typeof(TAuthHandlerType))
+                .AddTransient<IRequestHandler, GoogleHandler>()
+                .AddTransient<IRequestHandler, GoogleCallbackHandler>()
+
+                // Configuration
                 .AddSingleton(settings);
+
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
@@ -55,7 +62,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IApplicationBuilder UseAuthAssist(this IApplicationBuilder app)
         {
-            var settings = app.ApplicationServices.GetService<AuthAssist.Settings>();
+            var settings = app.ApplicationServices.GetService<Settings>();
             if (settings?.CookiePolicyOptions != null)
                 app.UseCookiePolicy(settings.CookiePolicyOptions);
             app.UseAuthentication();

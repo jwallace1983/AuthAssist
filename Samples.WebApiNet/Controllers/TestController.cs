@@ -89,7 +89,7 @@ namespace Samples.WebApiDemo.Controllers
         [HttpGet("loginGoogle")]
         public async Task<IActionResult> LoginGoogle()
         {
-            return await Task.FromResult(Redirect("https://localhost:3000/api/auth/google/start"));
+            return await Task.FromResult(Redirect("https://localhost:3000/api/auth/google"));
         }
     }
 }

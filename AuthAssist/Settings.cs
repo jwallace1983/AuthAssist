@@ -4,15 +4,15 @@ using Microsoft.AspNetCore.Builder;
 using System;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using AuthAssist.Providers;
+using AuthAssist.Providers.Models;
 
 namespace AuthAssist
 {
     public class Settings
     {
-        public void AddGoogle(string clientId, string clientSecret)
-            => this.GoogleIdp = new GoogleIdp(clientId, clientSecret);
-        internal GoogleIdp GoogleIdp = null;
+        public GoogleSettings GoogleIdp { get; private set; } = new();
+
+        public MicrosoftSettings MicrosoftIdp { get; private set; } = new();
 
         public string Prefix { get; set; } = "/api/auth";
 
