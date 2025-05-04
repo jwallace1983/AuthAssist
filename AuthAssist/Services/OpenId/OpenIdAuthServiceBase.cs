@@ -4,13 +4,12 @@ using System;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Collections.Generic;
-using AuthAssist.Providers.Models;
 using System.Net.Http.Json;
 using System.Security.Claims;
 
-namespace AuthAssist.Providers
+namespace AuthAssist.Services.OpenId
 {
-    public abstract class OpenIdProviderBase : IOpenIdProvider
+    public abstract class OpenIdAuthServiceBase : IOpenIdAuthService
     {
         private static readonly HttpClient _httpClient = new();
 
@@ -32,16 +31,16 @@ namespace AuthAssist.Providers
 
         public bool RedirectToLogin(HttpContext context)
         {
-            if (string.IsNullOrEmpty(this.ClientId))
+            if (string.IsNullOrEmpty(ClientId))
                 return false; // Not configured
             var callbackUrl = GetCallbackUrl(context);
-            var url = new StringBuilder(this.AuthUrl)
+            var url = new StringBuilder(AuthUrl)
                 .Append("?include_granted_scopes=true")
                 .Append("&response_type=code")
                 .Append("&scope=" + Uri.EscapeDataString("openid profile email"))
                 .Append("&state=" + Guid.NewGuid().ToString())
                 .Append("&redirect_uri=" + Uri.EscapeDataString(callbackUrl))
-                .Append("&client_id=" + this.ClientId)
+                .Append("&client_id=" + ClientId)
                 .ToString();
             context.Response.Redirect(url, false);
             return true;
@@ -50,7 +49,7 @@ namespace AuthAssist.Providers
         public string GetCallbackUrl(HttpContext context)
             => new StringBuilder()
             .Append($"http{(context.Request.IsHttps ? "s" : string.Empty)}://{context.Request.Host}")
-            .Append($"{this.Settings.Prefix}/{this.Endpoint}/callback")
+            .Append($"{Settings.Prefix}/{Endpoint}/callback")
             .ToString();
 
         public async Task<AuthResult> AuthenticateUser(HttpContext context)
@@ -62,30 +61,30 @@ namespace AuthAssist.Providers
                 return AuthResult.FromError("auth.state.invalid"); // TODO: Validate state
 
             // Exchange code for id/acccess tokens
-            var token = await this.GetToken(code, this.GetCallbackUrl(context));
+            var token = await GetToken(code, GetCallbackUrl(context));
             if (string.IsNullOrEmpty(token.IdToken))
                 return AuthResult.FromError("auth.token.invalid");
 
             // Get user info
-            var userInfo = await this.GetUserInfo(token.AccessToken);
+            var userInfo = await GetUserInfo(token.AccessToken);
             if (userInfo == null)
                 return AuthResult.FromError("auth.userinfo.invalid");
 
             // Add claim for authentication source
             var result = AuthResult.FromUserInfo(userInfo);
-            result.Claims[ClaimTypes.AuthenticationMethod] = this.Endpoint;
+            result.Claims[ClaimTypes.AuthenticationMethod] = Endpoint;
             return result;
         }
 
         public async Task<TokenResponse> GetToken(string code, string callbackUrl)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Post, this.TokenUrl);
+            using var request = new HttpRequestMessage(HttpMethod.Post, TokenUrl);
             request.Headers.Add("Accept", "application/json");
             request.Content = new FormUrlEncodedContent(new Dictionary<string, string>()
             {
                 { "code", code },
-                { "client_id", this.ClientId },
-                { "client_secret", this.ClientSecret },
+                { "client_id", ClientId },
+                { "client_secret", ClientSecret },
                 { "redirect_uri", callbackUrl },
                 { "grant_type", "authorization_code" }
             });
@@ -97,7 +96,7 @@ namespace AuthAssist.Providers
 
         public async Task<UserInfoResponse> GetUserInfo(string token)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, this.UserInfoUrl);
+            using var request = new HttpRequestMessage(HttpMethod.Get, UserInfoUrl);
             request.Headers.Add("Authorization", "Bearer " + token);
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode == false)

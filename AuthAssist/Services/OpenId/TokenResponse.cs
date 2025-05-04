@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AuthAssist.Providers.Models
+namespace AuthAssist.Services.OpenId
 {
     public class TokenResponse
     {

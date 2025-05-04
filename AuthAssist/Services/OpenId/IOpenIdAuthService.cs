@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
-namespace AuthAssist.Providers
+namespace AuthAssist.Services.OpenId
 {
-    public interface IOpenIdProvider
+    public interface IOpenIdAuthService
     {
         public abstract string Endpoint { get; }
 

@@ -1,9 +1,11 @@
-﻿namespace AuthAssist.Providers
+﻿using AuthAssist.Services.OpenId;
+
+namespace AuthAssist.Services.Microsoft
 {
     // Well-known: https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration
     // Docs: https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc
-    public class MicrosoftProvider(Settings settings, IAuthHandler authHandler)
-        : OpenIdProviderBase, IMicrosoftProvider
+    public class MicrosofAuthServive(Settings settings, IAuthHandler authHandler)
+        : OpenIdAuthServiceBase, IMicrosoftAuthService
     {
         public override string Endpoint => "microsoft";
 

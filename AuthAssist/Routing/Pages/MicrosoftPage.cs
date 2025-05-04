@@ -1,19 +1,17 @@
-﻿using AuthAssist.Providers;
+﻿using AuthAssist.Services;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace AuthAssist.Routing.Pages
 {
-    public class MicrosoftPage(IMicrosoftProvider microsoftProvider) : IEndpoint
+    public class MicrosoftPage(IAuthFacade authFacade) : IEndpoint
     {
-        private readonly IMicrosoftProvider _microsoftProvider = microsoftProvider;
-
         public HttpMethod Method => HttpMethod.Get;
 
-        public string Uri => _microsoftProvider.Endpoint;
+        public string Uri => authFacade.Microsoft.Endpoint;
 
         public Task<bool> ProcessRequest(HttpContext context)
-            => Task.FromResult(_microsoftProvider.RedirectToLogin(context));
+            => Task.FromResult(authFacade.Microsoft.RedirectToLogin(context));
     }
 }

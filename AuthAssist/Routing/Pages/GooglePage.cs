@@ -1,19 +1,17 @@
-﻿using AuthAssist.Providers;
+﻿using AuthAssist.Services;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace AuthAssist.Routing.Pages
 {
-    public class GooglePage(IGoogleProvider googleProvider) : IEndpoint
+    public class GooglePage(IAuthFacade authFacade) : IEndpoint
     {
-        private readonly IGoogleProvider _googleProvider = googleProvider;
-
         public HttpMethod Method => HttpMethod.Get;
 
-        public string Uri => _googleProvider.Endpoint;
+        public string Uri => authFacade.Google.Endpoint;
 
         public Task<bool> ProcessRequest(HttpContext context)
-            => Task.FromResult(_googleProvider.RedirectToLogin(context));
+            => Task.FromResult(authFacade.Google.RedirectToLogin(context));
     }
 }

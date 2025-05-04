@@ -1,14 +1,13 @@
-﻿using AuthAssist.Providers;
-using Microsoft.AspNetCore.Authentication;
+﻿using AuthAssist.Services.Local;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace AuthAssist.Routing.Pages
 {
-    public class LogoutPage(ILocalProvider localProvider) : IEndpoint
+    public class LogoutPage(ILocalAuthService localProvider) : IEndpoint
     {
-        private readonly ILocalProvider _localProvider = localProvider;
+        private readonly ILocalAuthService _localProvider = localProvider;
 
         public HttpMethod Method => HttpMethod.Get;
 

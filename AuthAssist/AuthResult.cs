@@ -1,4 +1,4 @@
-﻿using AuthAssist.Providers.Models;
+﻿using AuthAssist.Services.OpenId;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;

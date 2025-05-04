@@ -2,15 +2,16 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace AuthAssist.Providers
+namespace AuthAssist.Services.Local
 {
-    public interface ILocalProvider
+    public interface ILocalAuthService
     {
         Task<AuthResult> AuthenticateUser(HttpContext context);
         
         Task<AuthResult> GetAuthenticatedUser(ClaimsPrincipal user);
         
-        Task Login(HttpContext context, AuthResult authResult);
+        Task Login(HttpContext context, AuthResult authResult, string redirect = null);
+
         Task Logout(HttpContext context);
     }
 }

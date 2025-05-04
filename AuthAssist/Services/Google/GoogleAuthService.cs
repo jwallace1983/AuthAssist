@@ -1,10 +1,10 @@
-﻿using AuthAssist.Providers.Models;
+﻿using AuthAssist.Services.OpenId;
 
-namespace AuthAssist.Providers
+namespace AuthAssist.Services.Google
 {
     // Well-known: https://accounts.google.com/.well-known/openid-configuration
-    public class GoogleProvider(Settings settings, IAuthHandler authHandler)
-        : OpenIdProviderBase, IGoogleProvider
+    public class GoogleAuthService(Settings settings, IAuthHandler authHandler)
+        : OpenIdAuthServiceBase, IGoogleAuthService
     {
         public override string Endpoint => "google";
 

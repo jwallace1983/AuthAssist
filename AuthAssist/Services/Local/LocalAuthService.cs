@@ -7,9 +7,9 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace AuthAssist.Providers
+namespace AuthAssist.Services.Local
 {
-    public class LocalProvider(Settings settings, IAuthHandler authHandler) : ILocalProvider
+    public class LocalAuthService(Settings settings, IAuthHandler authHandler) : ILocalAuthService
     {
         private readonly Settings _settings = settings;
 
@@ -37,16 +37,19 @@ namespace AuthAssist.Providers
                     : AuthResult.FromError("user.invalid");
         }
 
-        public async Task Login(HttpContext context, AuthResult authResult)
+        public async Task Login(HttpContext context, AuthResult authResult, string redirectTo = null)
         {
             if (authResult.IsSuccess)
-                await this.LoadUser(context, authResult);
-            await context.Response.WriteAsJsonAsync(authResult, _settings.JsonSerializerOptions);
+                await LoadUser(context, authResult);
+            if (string.IsNullOrEmpty(redirectTo) == false) // If redirect
+                context.Response.Redirect(redirectTo, false);
+            else // Return response
+                await context.Response.WriteAsJsonAsync(authResult, _settings.JsonSerializerOptions);
         }
 
         public async Task LoadUser(HttpContext context, AuthResult authResult)
         {
-            context.User = await this.CreatePrincipal(authResult);
+            context.User = await CreatePrincipal(authResult);
             authResult.ExpiresUtc = DateTime.UtcNow.Add(_settings.CookieDuration);
             await context.SignInAsync(context.User);
         }

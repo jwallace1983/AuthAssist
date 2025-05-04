@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Builder;
 using System;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using AuthAssist.Providers.Models;
+using AuthAssist.Services.Google;
+using AuthAssist.Services.Microsoft;
 
 namespace AuthAssist
 {

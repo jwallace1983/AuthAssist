@@ -1,4 +1,4 @@
-﻿namespace AuthAssist.Providers.Models
+﻿namespace AuthAssist.Services.Microsoft
 {
     public class MicrosoftSettings
     {

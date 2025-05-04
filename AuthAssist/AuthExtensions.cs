@@ -1,10 +1,13 @@
 ﻿using AuthAssist;
-using AuthAssist.Providers;
 using AuthAssist.Routing;
 using AuthAssist.Routing.Pages;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using System;
+using AuthAssist.Services.Google;
+using AuthAssist.Services.Local;
+using AuthAssist.Services.Microsoft;
+using AuthAssist.Services;
 
 // Exception: Namespace does not match folder structure
 #pragma warning disable IDE0130
@@ -15,10 +18,10 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddAuthAssist<TAuthHandlerType>(
             this IServiceCollection services,
-            Action<AuthAssist.Settings> applySettings = null)
+            Action<Settings> applySettings = null)
             where TAuthHandlerType : IAuthHandler
         {
-            var settings = new AuthAssist.Settings();
+            var settings = new Settings();
             applySettings?.Invoke(settings);
             services
                 // User-provided auth handler
@@ -34,10 +37,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddTransient<IEndpoint, MicrosoftPage>()
                 .AddTransient<IEndpoint, MicrosoftCallbackPage>()
 
-                // Providers
-                .AddTransient<ILocalProvider, LocalProvider>()
-                .AddTransient<IGoogleProvider, GoogleProvider>()
-                .AddTransient<IMicrosoftProvider, MicrosoftProvider>()
+                // Services
+                .AddTransient<ILocalAuthService, LocalAuthService>()
+                .AddTransient<IGoogleAuthService, GoogleAuthService>()
+                .AddTransient<IMicrosoftAuthService, MicrosofAuthServive>()
+                .AddTransient<IAuthFacade, AuthFacade>()
 
                 // Configuration
                 .AddSingleton(settings);

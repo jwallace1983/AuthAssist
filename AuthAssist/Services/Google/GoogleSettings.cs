@@ -1,4 +1,4 @@
-﻿namespace AuthAssist.Providers.Models
+﻿namespace AuthAssist.Services.Google
 {
     public class GoogleSettings
     {

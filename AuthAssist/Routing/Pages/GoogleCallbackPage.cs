@@ -1,24 +1,20 @@
-﻿using AuthAssist.Providers;
+﻿using AuthAssist.Services;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace AuthAssist.Routing.Pages
 {
-    public class GoogleCallbackPage(IGoogleProvider googleProvider, ILocalProvider localProvider) : IEndpoint
+    public class GoogleCallbackPage(IAuthFacade authFacade) : IEndpoint
     {
-        private readonly IGoogleProvider _googleProvider = googleProvider;
-
-        private readonly ILocalProvider _localProvider = localProvider;
-
         public HttpMethod Method => HttpMethod.Get;
 
-        public string Uri => $"{_googleProvider.Endpoint}/callback";
+        public string Uri => $"{authFacade.Google.Endpoint}/callback";
 
         public async Task<bool> ProcessRequest(HttpContext context)
         {
-            var authResult = await _googleProvider.AuthenticateUser(context);
-            await _localProvider.Login(context, authResult);
+            var authResult = await authFacade.Google.AuthenticateUser(context);
+            await authFacade.Local.Login(context, authResult);
             return true;
         }
     }
