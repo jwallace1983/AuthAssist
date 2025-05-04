@@ -4,11 +4,10 @@ using System;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Text.Json;
-using AuthAssist.Providers.Models;
 
 namespace AuthAssist.Providers
 {
-    public abstract class OpenIdProviderBase
+    public abstract class OpenIdProviderBase : IOpenIdProvider
     {
         private static readonly HttpClient _httpClient = new();
 
@@ -18,20 +17,18 @@ namespace AuthAssist.Providers
 
         public abstract string AuthUrl { get; }
 
-        public abstract GoogleSettings ClientSettings { get; }
-
         public abstract Settings Settings { get; }
 
         public abstract IAuthHandler AuthHandler { get; }
 
         public async Task<AuthResult> AuthenticateUser(HttpContext context)
         {
-            var authRequest = await JsonSerializer.DeserializeAsync<AuthRequest>(
-                context.Request.Body, this.Settings.JsonSerializerOptions);
-            var authResult = await this.AuthHandler.AuthenticateUser(authRequest);
-            if (authResult.IsSuccess == false)
-                authResult.Error = "user.invalid";
-            return authResult;
+            await Task.CompletedTask; // TODO: REMOVE
+            if (context.Request.Query.TryGetValue("code", out var code) == false)
+                return AuthResult.FromError("auth.code.invalid");
+            else if (context.Request.Query.TryGetValue("state", out var state) == false)
+                return AuthResult.FromError("auth.state.invalid");
+            return AuthResult.FromUsername("temp");
         }
 
         public bool RedirectToLogin(HttpContext context, string endpoint)
@@ -51,13 +48,10 @@ namespace AuthAssist.Providers
             return true;
         }
 
-        public static string GetCallbackUrl(HttpContext context, string endpoint)
-            => new StringBuilder("http")
-            .Append(context.Request.IsHttps ? "s" : string.Empty)
-            .Append("://")
-            .Append(context.Request.Host)
-            .Append(endpoint)
-            .Append("/callback")
+        public string GetCallbackUrl(HttpContext context, string endpoint)
+            => new StringBuilder()
+            .Append($"http{(context.Request.IsHttps ? "s" : string.Empty)}://{context.Request.Host}")
+            .Append($"{this.Settings.Prefix}/{endpoint}/callback")
             .ToString();
 
     }

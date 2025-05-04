@@ -1,22 +1,22 @@
 ﻿using AuthAssist.Providers;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace AuthAssist.Broker.Handlers
+namespace AuthAssist.Routing.Pages
 {
-    public class ExtendHandler(ILocalProvider localProvider) : IRequestHandler
+    public class LogoutPage(ILocalProvider localProvider) : IEndpoint
     {
         private readonly ILocalProvider _localProvider = localProvider;
 
         public HttpMethod Method => HttpMethod.Get;
 
-        public string Endpoint => "extend";
+        public string Uri => "logout";
 
         public async Task<bool> ProcessRequest(HttpContext context)
         {
-            var authResult = await _localProvider.GetAuthenticatedUser(context.User);
-            await _localProvider.Login(context, authResult);
+            await _localProvider.Logout(context);
             return true;
         }
     }

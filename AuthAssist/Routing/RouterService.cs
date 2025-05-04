@@ -3,38 +3,33 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AuthAssist.Broker
+namespace AuthAssist.Routing
 {
-    public interface IBrokerService
-    {
-        Task Process(HttpContext context, Func<Task> next);
-    }
-
-    public class BrokerService : IBrokerService
+    public class RouterService : IRouterService
     {
         private readonly Settings _settings;
-        private readonly Dictionary<string, IRequestHandler> _handlers = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, IEndpoint> _routes = new(StringComparer.OrdinalIgnoreCase);
 
-        public BrokerService(Settings options, IEnumerable<IRequestHandler> handlers)
+        public RouterService(Settings options, IEnumerable<IEndpoint> handlers)
         {
             _settings = options;
             foreach (var handler in handlers)
             {
-                var key = GetKey(handler.Method, $"{_settings.Prefix}/{handler.Endpoint}");
-                _handlers[key] = handler;
+                var key = GetKey(handler.Method, $"{_settings.Prefix}/{handler.Uri}");
+                _routes[key] = handler;
             }
         }
 
         public static string GetKey<TMethod>(TMethod method, string endpoint)
             => $"{method}|{endpoint}";
 
-        public bool TryGetHandler(HttpContext context, out IRequestHandler handler)
+        public bool TryGetHandler(HttpContext context, out IEndpoint handler)
         {
             handler = null;
             if (_settings.RequireHttps && !context.Request.IsHttps)
                 return false; // Guard: Invalid https request
             string key = GetKey(context.Request.Method, context.Request.Path.Value);
-            return _handlers.TryGetValue(key, out handler);
+            return _routes.TryGetValue(key, out handler);
         }
 
         public async Task Process(HttpContext context, Func<Task> next)

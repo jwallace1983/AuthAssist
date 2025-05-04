@@ -1,11 +1,15 @@
 ﻿using AuthAssist;
-using AuthAssist.Broker;
-using AuthAssist.Broker.Handlers;
+using AuthAssist.Providers;
+using AuthAssist.Routing;
+using AuthAssist.Routing.Pages;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using System;
 
+// Exception: Namespace does not match folder structure
+#pragma warning disable IDE0130
 namespace Microsoft.Extensions.DependencyInjection
+#pragma warning restore IDE0130
 {
     public static class AuthExtensions
     {
@@ -21,12 +25,17 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddTransient(typeof(IAuthHandler), typeof(TAuthHandlerType))
 
                 // Routing
-                .AddSingleton<IBrokerService, BrokerService>()
-                .AddTransient<IRequestHandler, LoginHandler>()
-                .AddTransient<IRequestHandler, LogoutHandler>()
-                .AddTransient<IRequestHandler, ExtendHandler>()
-                .AddTransient<IRequestHandler, GoogleHandler>()
-                .AddTransient<IRequestHandler, GoogleCallbackHandler>()
+                .AddSingleton<IRouterService, RouterService>()
+                .AddTransient<IEndpoint, LoginPage>()
+                .AddTransient<IEndpoint, LogoutPage>()
+                .AddTransient<IEndpoint, ExtendPage>()
+                .AddTransient<IEndpoint, GooglePage>()
+                .AddTransient<IEndpoint, GoogleCallbackPage>()
+
+                // Providers
+                .AddTransient<ILocalProvider, LocalProvider>()
+                .AddTransient<IGoogleProvider, GoogleProvider>()
+                .AddTransient<IMicrosoftProvider, MicrosoftProvider>()
 
                 // Configuration
                 .AddSingleton(settings);
@@ -69,7 +78,7 @@ namespace Microsoft.Extensions.DependencyInjection
             app.UseAuthorization();
             app.Use(async (context, next) =>
             {
-                var broker = app.ApplicationServices.GetService<IBrokerService>();
+                var broker = app.ApplicationServices.GetService<IRouterService>();
                 await broker.Process(context, next);
             });
             return app;

@@ -11,7 +11,8 @@ builder.Services.AddAuthAssist<AuthHandler>(settings =>
     {
         cookieOptions.ExpireTimeSpan = System.TimeSpan.FromMinutes(5);
     });
-    settings.AddGoogle(builder.Configuration["SocialAuth:Google:ClientId"], builder.Configuration["SocialAuth:Google:ClientSecret"]);
+    settings.GoogleIdp.ClientId = builder.Configuration["SocialAuth:Google:ClientId"];
+    settings.GoogleIdp.ClientSecret = builder.Configuration["SocialAuth:Google:ClientSecret"];
 });
 builder.Services.AddControllers();
 var app = builder.Build();

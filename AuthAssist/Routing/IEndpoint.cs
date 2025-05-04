@@ -2,11 +2,11 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace AuthAssist.Broker
+namespace AuthAssist.Routing
 {
-    public interface IRequestHandler
+    public interface IEndpoint
     {
-        string Endpoint { get; }
+        string Uri { get; }
 
         HttpMethod Method { get; }
 

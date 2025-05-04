@@ -3,15 +3,15 @@ using Microsoft.AspNetCore.Http;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace AuthAssist.Broker.Handlers
+namespace AuthAssist.Routing.Pages
 {
-    public class LoginHandler(ILocalProvider localProvider) : IRequestHandler
+    public class LoginPage(ILocalProvider localProvider) : IEndpoint
     {
         private readonly ILocalProvider _localProvider = localProvider;
 
         public HttpMethod Method => HttpMethod.Post;
 
-        public string Endpoint => "login";
+        public string Uri => "login";
 
         public async Task<bool> ProcessRequest(HttpContext context)
         {
