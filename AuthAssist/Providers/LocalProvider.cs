@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
@@ -45,16 +44,16 @@ namespace AuthAssist.Providers
 
         public async Task LoadUser(HttpContext context, AuthResult authResult)
         {
-            context.User = await this.CreatePrincipal(authResult.Username);
+            const string AUTH_METHOD = "local";
+            authResult.Claims[ClaimTypes.AuthenticationMethod] = AUTH_METHOD;
+            context.User = await this.CreatePrincipal(authResult);
             authResult.ExpiresUtc = DateTime.UtcNow.Add(_settings.CookieDuration);
-            authResult.Claims = context.User.Claims
-                .ToDictionary(claim => claim.Type, claim => claim.Value);
             await context.SignInAsync(context.User);
         }
-        public async Task<ClaimsPrincipal> CreatePrincipal(string username)
+        public async Task<ClaimsPrincipal> CreatePrincipal(AuthResult authResult)
         {
-            var claims = new List<Claim> { new(ClaimTypes.Name, username) };
-            await _authHandler.AppendClaims(username, claims);
+            await _authHandler.AppendClaims(authResult);
+            var claims = authResult.Claims.Select(c => new Claim(c.Key, c.Value));
             return new ClaimsPrincipal(new ClaimsIdentity(claims,
                 CookieAuthenticationDefaults.AuthenticationScheme));
         }

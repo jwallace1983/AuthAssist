@@ -10,6 +10,6 @@ namespace AuthAssist
 
         Task<bool> VerifyUser(ClaimsPrincipal user);
 
-        Task AppendClaims(string user, List<Claim> claims);
+        Task AppendClaims(AuthResult authResult);
     }
 }

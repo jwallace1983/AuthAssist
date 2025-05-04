@@ -13,7 +13,7 @@ namespace AuthAssist.Routing.Pages
 
         public HttpMethod Method => HttpMethod.Get;
 
-        public string Uri => "google/callback";
+        public string Uri => $"{_googleProvider.Endpoint}/callback";
 
         public async Task<bool> ProcessRequest(HttpContext context)
         {

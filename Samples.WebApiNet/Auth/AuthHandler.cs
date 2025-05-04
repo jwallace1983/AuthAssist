@@ -1,6 +1,5 @@
 ﻿using AuthAssist;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -11,11 +10,11 @@ namespace Samples.WebApiDemo.Auth
     {
         private static readonly string[] _validUsers = [ "user", "admin" ];
 
-        public Task AppendClaims(string username, List<Claim> claims)
+        public Task AppendClaims(AuthResult authResult)
         {
             const string _adminUser = "admin";
-            if (_adminUser.Equals(username, StringComparison.OrdinalIgnoreCase))
-                claims.Add(new Claim(Policies.ADMIN, string.Empty));
+            if (_adminUser.Equals(authResult.Username, StringComparison.OrdinalIgnoreCase))
+                authResult.Claims[Policies.ADMIN] = string.Empty;
             return Task.CompletedTask;
         }
 
@@ -24,8 +23,8 @@ namespace Samples.WebApiDemo.Auth
         public Task<AuthResult> AuthenticateUser(AuthRequest request)
         {
             return _validUsers.Contains(request.Username, StringComparer.OrdinalIgnoreCase)
-                ? Task.FromResult(new AuthResult { Username = request.Username })
-                : Task.FromResult(new AuthResult { Error = "auth.failed" });
+                ? Task.FromResult(AuthResult.FromUsername(request.Username))
+                : Task.FromResult(AuthResult.FromError("auth.failed"));
         }
     }
 }

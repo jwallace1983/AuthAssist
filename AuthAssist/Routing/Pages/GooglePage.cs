@@ -11,9 +11,9 @@ namespace AuthAssist.Routing.Pages
 
         public HttpMethod Method => HttpMethod.Get;
 
-        public string Uri => "google";
+        public string Uri => _googleProvider.Endpoint;
 
         public Task<bool> ProcessRequest(HttpContext context)
-            => Task.FromResult(_googleProvider.RedirectToLogin(context, this.Uri));
+            => Task.FromResult(_googleProvider.RedirectToLogin(context));
     }
 }
