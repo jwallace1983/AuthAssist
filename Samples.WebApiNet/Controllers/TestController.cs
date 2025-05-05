@@ -90,13 +90,35 @@ namespace Samples.WebApiDemo.Controllers
         [HttpGet("loginGoogle")]
         public async Task<IActionResult> LoginGoogle()
         {
-            return await Task.FromResult(Redirect("https://localhost:3000/api/auth/google"));
+            var redirectUrl = Uri.EscapeDataString("https://localhost:3000/api/test/loginGoogle/success");
+            return await Task.FromResult(Redirect("https://localhost:3000/api/auth/google?returnUrl=" + redirectUrl));
+        }
+
+        [HttpGet("loginGoogle/success")]
+        public IActionResult LoginGoogleSuccess()
+        {
+            return Ok(new
+            {
+                Link = "https://localhost:3000/test/run",
+                Google = User.Identity?.Name ?? "Unknown",
+            });
         }
 
         [HttpGet("loginMicrosoft")]
         public async Task<IActionResult> LoginMicrosoft()
         {
-            return await Task.FromResult(Redirect("https://localhost:3000/api/auth/microsoft"));
+            var redirectUrl = Uri.EscapeDataString("https://localhost:3000/api/test/loginMicrosoft/success");
+            return await Task.FromResult(Redirect("https://localhost:3000/api/auth/microsoft?returnUrl=" + redirectUrl));
+        }
+
+        [HttpGet("loginMicrosoft/success")]
+        public IActionResult LoginMicrosoftSuccess()
+        {
+            return Ok(new
+            {
+                Link = "https://localhost:3000/test/run",
+                Microsoft = User.Identity?.Name ?? "Unknown",
+            });
         }
     }
 }

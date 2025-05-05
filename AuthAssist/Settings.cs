@@ -21,6 +21,8 @@ namespace AuthAssist
 
         public string RedirectToAccessDenied { get; set; } = null;
 
+        public string DefaultReturnUrl { get; set; } = "/";
+
         public bool RequireHttps { get; set; } = true;
 
         internal TimeSpan CookieDuration { get; set; }

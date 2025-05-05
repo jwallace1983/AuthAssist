@@ -11,6 +11,10 @@ namespace AuthAssist.Services.OpenId
 {
     public abstract class OpenIdAuthServiceBase : IOpenIdAuthService
     {
+        private const string COOKIE_RETURN_URL = "return_url";
+
+        private const string COOKIE_NONCE = "nonce";
+
         private static readonly HttpClient _httpClient = new();
 
         public abstract string Endpoint { get; }
@@ -33,12 +37,16 @@ namespace AuthAssist.Services.OpenId
         {
             if (string.IsNullOrEmpty(ClientId))
                 return false; // Not configured
+            context.Response.Cookies.Append(COOKIE_RETURN_URL,
+                context.Request.Query.TryGetValue("returnUrl", out var returnUrl) ? returnUrl : "/");
+            var nonce = Guid.NewGuid().ToString();
+            context.Response.Cookies.Append(COOKIE_NONCE, nonce);
             var callbackUrl = GetCallbackUrl(context);
             var url = new StringBuilder(AuthUrl)
                 .Append("?include_granted_scopes=true")
                 .Append("&response_type=code")
                 .Append("&scope=" + Uri.EscapeDataString("openid profile email"))
-                .Append("&state=" + Guid.NewGuid().ToString())
+                .Append("&state=" + nonce)
                 .Append("&redirect_uri=" + Uri.EscapeDataString(callbackUrl))
                 .Append("&client_id=" + ClientId)
                 .ToString();
@@ -57,8 +65,11 @@ namespace AuthAssist.Services.OpenId
             // Validate the provided code and state
             if (context.Request.Query.TryGetValue("code", out var code) == false)
                 return AuthResult.FromError("auth.code.invalid");
-            else if (context.Request.Query.TryGetValue("state", out _) == false)
-                return AuthResult.FromError("auth.state.invalid"); // TODO: Validate state
+            else if (context.Request.Query.TryGetValue("state", out var state) == false
+                || context.Request.Cookies.TryGetValue(COOKIE_NONCE, out var nonce) == false)
+                return AuthResult.FromError("auth.nonce.invalid");
+            else if (nonce.Equals(state.ToString()) == false)
+                return AuthResult.FromError("auth.nonce.mismatch");
 
             // Exchange code for id/acccess tokens
             var token = await GetToken(code, GetCallbackUrl(context));
