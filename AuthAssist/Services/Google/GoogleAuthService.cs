@@ -14,9 +14,9 @@ namespace AuthAssist.Services.Google
 
         public override string UserInfoUrl => "https://openidconnect.googleapis.com/v1/userinfo";
 
-        public override string ClientId => settings.GoogleIdp.ClientId;
+        public override string ClientId => settings.Google.ClientId;
 
-        public override string ClientSecret => settings.GoogleIdp.ClientSecret;
+        public override string ClientSecret => settings.Google.ClientSecret;
 
         public override Settings Settings => settings;
 

@@ -11,10 +11,10 @@ builder.Services.AddAuthAssist<AuthHandler>(settings =>
     {
         cookieOptions.ExpireTimeSpan = System.TimeSpan.FromMinutes(5);
     });
-    settings.GoogleIdp.ClientId = builder.Configuration["SocialAuth:Google:ClientId"];
-    settings.GoogleIdp.ClientSecret = builder.Configuration["SocialAuth:Google:ClientSecret"];
-    settings.MicrosoftIdp.ClientId = builder.Configuration["SocialAuth:Microsoft:ClientId"];
-    settings.MicrosoftIdp.ClientSecret = builder.Configuration["SocialAuth:Microsoft:ClientSecret"];
+    settings.Google.ClientId = builder.Configuration["SocialAuth:Google:ClientId"];
+    settings.Google.ClientSecret = builder.Configuration["SocialAuth:Google:ClientSecret"];
+    settings.Microsoft.ClientId = builder.Configuration["SocialAuth:Microsoft:ClientId"];
+    settings.Microsoft.ClientSecret = builder.Configuration["SocialAuth:Microsoft:ClientSecret"];
     settings.EnableTokenEndpoint = true;
 });
 builder.Services.AddControllers();

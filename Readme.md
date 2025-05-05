@@ -81,25 +81,6 @@ public string GetSecure() => "Secure endpoint: " + User.Identity.Name;
 public string GetClaim() => "Admin endpoint: " + User.Identity.Name;
 ```
 
-## Customize available settings
-
-Use the settings when configuring dependency injection to customize usage of the tool, such as:
-
-* Change the endpoint for the api
-* Enable non-https requests (not recommended)
-
-For example, to modify the auth endpoint:
-
-```
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddAuthAssist(settings =>
-{
-    settings.Endpoint = "/api/security/auth";
-    settings.UseAuthHandler<AuthHandler>();
-    settings.UseAuthPolicies(Policies.ApplyPolicies);
-});
-```
-
 ## API Endpoints
 
 The following sample API endpoints are supported by the auth api.
@@ -140,11 +121,10 @@ If the response is not successful, the response will only contain the result and
 
 ### Extend (/api/auth/extend)
 
-A `GET` or `POST request should be used to authenticate.
+A `GET` request may be used to extend the token.
 
 ```
 GET: https://path-to-site/api/auth/extend
-POST: https://path-to-site/api/auth/extend
 ```
 
 The response will contain the results of the authentication. If successful, an HTTP-only cookie will be set for the user.
@@ -171,12 +151,36 @@ If the response is not successful, the response will only contain the result and
 
 ### Logout (/api/auth/logout)
 
-A `POST` or `GET` request will log the user out by unsetting the HTTP-only cookie for the user.
+A `GET` request will log the user out by unsetting the HTTP-only cookie for the user.
 
 ```
 GET: https://path-to-site/api/auth/logout
-POST: https://path-to-site/api/auth/logout
 ```
+
+### Token (/api/auth/token)
+
+A `GET` request will return the current token for the user, if the endpoint is enabled.
+
+```
+GET: https://path-to-site/api/auth/token
+```
+
+### Google (/api/auth/google)
+
+A redirection to the endpoint will redirect the user to the Google login page for social login.
+
+### Google Callback (/api/auth/google/callback)
+
+The user will be returned to the Google authentication callback when a user complets the social login flow.
+
+### Microsoft (/api/auth/microsoft)
+
+A redirection to the endpoint will redirect the user to the Microsoft login page for social login.
+
+### Microsoft Callback (/api/auth/microsoft/callback)
+
+The user will be returned to the Microsoft authentication callback when a user complets the social login flow.
+
 
 ## Configure authentication options
 
@@ -186,6 +190,20 @@ The API implements the following default behaviors for authentication options:
 * If an endpoint requires authentication, an empty response with `401` status code is provided.
 * If an endpoint is authenticated but user does not meet authorization policies, an empty response with `403` status code is provided.
 * Cookies are only set as HTTP-only cookies to avoid sharing any details with SPA applications beyond the response result.
+
+Add social authentication (`.Google` or `.Microsoft`):
+
+```
+builder.Services.AddAuthAssist(settings =>
+{
+    settings.UseAuthHandler<AuthHandler>();
+    settings.UseAuthPolicies(Policies.ApplyPolicies);
+    settings.Google.ClientId = builder.Configuration["SocialAuth:Google:ClientId"];
+    settings.Google.ClientSecret = builder.Configuration["SocialAuth:Google:ClientSecret"];
+    settings.Microsoft.ClientId = builder.Configuration["SocialAuth:Microsoft:ClientId"];
+    settings.Microsoft.ClientSecret = builder.Configuration["SocialAuth:Microsoft:ClientSecret"];
+});
+```
 
 Any of the cookie authentication options can be adjusted:
 
@@ -218,17 +236,16 @@ builder.Services.AddAuthAssist(settings =>
 });
 ```
 
-It is also possible to customize how "not found" or error handling is managed.
+Additional configuration options from the `Settings` include:
 
-```
-builder.Services.AddAuthAssist(settings =>
-{
-    settings.UseAuthHandler<AuthHandler>();
-    settings.UseAuthPolicies(Policies.ApplyPolicies);
-    settings.UseNotFoundHandler(context => { /* Customize */ return Task.CompletedTask; });
-    settings.UseErrorHandler((context, ex) => { /* Customize */ return Task.CompletedTask; });
-});
-```
+* `Prefix`: The prefix for the authentication API endpoints. Default is `/api/auth`
+* `RedirectToLogin` : Redirect to a login page instead of displaying a 401 error. Default to show 401 error.
+* `RedirectToAccessDenied`: Redirect to an access denied page instead of a 403 error. Default to show 403 error.
+* `RedirectToLoginError`: Redirect to a URL when a social login is not successful.
+* `DefaultReturnUrl`: Default return url for social login, when a return url is not provided on initial request.
+* `RequireHttps`: Require HTTPS for the authentication API. Default is true.
+* `EnableTokenEndpoint`: Enable the token endpoint to return the current token. Default is false.
+* `JsonSerializerOptions`: Customize the JSON serialization options for the API responses.
 
 ## Error Codes
 
@@ -243,9 +260,9 @@ When an error occurs, a response AuthResult object is returned, such as
 
 The following error codes may be returned:
 
-* auth.config.error - Service not configured, probably from missing IAuthHandler implementation
-* user.invalid - The provided user is not valid for the operation (example: extended an unauthenticated session)
-* app.error - Some other error occurred within the application
-
-If any injected code, such as from an implementation of IAuthHandler, generates an `ApplicationException`, then the message
-of the exception will be returned as the `Error` property in the response.
+* user.invalid: User not valid or able to be loaded (ex: unauthenticated)
+* auth.code.invalid: The authentication code from social login is not valid
+* auth.nonce.invalid: Unable to validate state/nonce from social login
+* auth.nonce.mismatch: The social state/nonce from social login does not match generated value
+* auth.token.invalid: Unable to exchange authenticate code for access token
+* auth.userinfo.invalid: Unable to load authenticated user information from social login

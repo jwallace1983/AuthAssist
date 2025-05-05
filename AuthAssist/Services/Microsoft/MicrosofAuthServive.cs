@@ -15,9 +15,9 @@ namespace AuthAssist.Services.Microsoft
 
         public override string UserInfoUrl => "https://graph.microsoft.com/oidc/userinfo";
 
-        public override string ClientId => settings.MicrosoftIdp.ClientId;
+        public override string ClientId => settings.Microsoft.ClientId;
 
-        public override string ClientSecret => settings.MicrosoftIdp.ClientSecret;
+        public override string ClientSecret => settings.Microsoft.ClientSecret;
 
         public override Settings Settings => settings;
 

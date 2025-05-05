@@ -15,9 +15,9 @@ namespace AuthAssist
 
         internal const string COOKIE_NONCE = "nonce";
 
-        public GoogleSettings GoogleIdp { get; private set; } = new();
+        public GoogleSettings Google { get; private set; } = new();
 
-        public MicrosoftSettings MicrosoftIdp { get; private set; } = new();
+        public MicrosoftSettings Microsoft { get; private set; } = new();
 
         public string Prefix { get; set; } = "/api/auth";
 
@@ -58,7 +58,7 @@ namespace AuthAssist
         // Configure cookie policy
         public CookiePolicyOptions CookiePolicyOptions { get; set; } = new CookiePolicyOptions
         {
-            HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
+            HttpOnly = global::Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
         };
 
 
