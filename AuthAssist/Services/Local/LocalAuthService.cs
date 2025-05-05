@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -21,7 +22,7 @@ namespace AuthAssist.Services.Local
                 context.Request.Body, _settings.JsonSerializerOptions);
             var authResult = await _authHandler.AuthenticateUser(authRequest);
             if (authResult.IsSuccess)
-                authResult.Claims[ClaimTypes.AuthenticationMethod] = "local";
+                authResult.AuthType = AuthTypes.Local;
             else
                 authResult.Error = "user.invalid";
             return authResult;
@@ -41,11 +42,10 @@ namespace AuthAssist.Services.Local
         {
             if (authResult.IsSuccess)
                 await LoadUser(context, authResult);
-            var redirectTo = this.GetRedirectUrl(context, authResult);
-            if (string.IsNullOrEmpty(redirectTo) == false)
-                context.Response.Redirect(redirectTo, false);
-            else // Return response
+            if (authResult.AuthType == AuthTypes.Local)
                 await context.Response.WriteAsJsonAsync(authResult, _settings.JsonSerializerOptions);
+            else // Social logins must redirect
+                context.Response.Redirect(this.GetRedirectUrl(context, authResult), false);
         }
 
         public async Task LoadUser(HttpContext context, AuthResult authResult)

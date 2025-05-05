@@ -21,5 +21,7 @@ namespace AuthAssist.Services.Google
         public override Settings Settings => settings;
 
         public override IAuthHandler AuthHandler => authHandler;
+
+        public override AuthTypes AuthType => AuthTypes.Microsoft;
     }
 }

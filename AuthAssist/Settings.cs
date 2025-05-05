@@ -31,6 +31,8 @@ namespace AuthAssist
 
         public bool RequireHttps { get; set; } = true;
 
+        public bool EnableTokenEndpoint { get; set; } = false;
+
         internal TimeSpan CookieDuration { get; set; }
 
         internal bool CookieSlidingExpiration { get; set; }

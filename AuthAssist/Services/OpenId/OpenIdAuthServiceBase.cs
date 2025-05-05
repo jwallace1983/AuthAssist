@@ -29,6 +29,8 @@ namespace AuthAssist.Services.OpenId
 
         public abstract IAuthHandler AuthHandler { get; }
 
+        public abstract AuthTypes AuthType { get; }
+
         public bool RedirectToLogin(HttpContext context)
         {
             if (string.IsNullOrEmpty(ClientId))
@@ -79,7 +81,7 @@ namespace AuthAssist.Services.OpenId
 
             // Add claim for authentication source
             var result = AuthResult.FromUserInfo(userInfo);
-            result.Claims[ClaimTypes.AuthenticationMethod] = Endpoint;
+            result.AuthType = this.AuthType;
             return result;
         }
 

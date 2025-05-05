@@ -25,6 +25,7 @@ namespace Samples.WebApiDemo.Controllers
                 LoginGoogle = "https://localhost:3000/test/LoginGoogle",
                 LoginMicrosoft = "https://localhost:3000/test/LoginMicrosoft",
                 Logout = "https://localhost:3000/test/logout",
+                Token = "https://localhost:3000/test/token",
             });
         }
 
@@ -119,6 +120,30 @@ namespace Samples.WebApiDemo.Controllers
                 Link = "https://localhost:3000/test/run",
                 Microsoft = User.Identity?.Name ?? "Unknown",
             });
+        }
+
+
+        [HttpGet("token")]
+        public async Task<IActionResult> Token()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync("https://localhost:3000/api/auth/token");
+                response.EnsureSuccessStatusCode();
+                return Ok(new
+                {
+                    Link = "https://localhost:3000/test/run",
+                    Token = await response.Content.ReadFromJsonAsync<AuthResult>(),
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    Link = "https://localhost:3000/test/run",
+                    Error = ex.Message,
+                });
+            }
         }
     }
 }

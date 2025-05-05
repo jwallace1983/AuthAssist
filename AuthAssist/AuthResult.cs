@@ -1,7 +1,9 @@
 ﻿using AuthAssist.Services.OpenId;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
+using System.Text.Json.Serialization;
 
 namespace AuthAssist
 {
@@ -33,6 +35,19 @@ namespace AuthAssist
                 },
             };
 
+        public static AuthResult FromPrincipal(ClaimsPrincipal user)
+        {
+            return user.Identity.IsAuthenticated 
+                ? new()
+                {
+                    Username = user.Identity.Name,
+                    FirstName = user.FindFirst(ClaimTypes.GivenName)?.Value,
+                    LastName = user.FindFirst(ClaimTypes.Surname)?.Value,
+                    Claims = user.Claims.ToDictionary(c => c.Type, c => c.Value),
+                }
+                : AuthResult.FromError("user.invalid");
+        }
+
         public bool IsSuccess => string.IsNullOrEmpty(this.Error);
 
         public string Username { get; set; }
@@ -46,5 +61,10 @@ namespace AuthAssist
         public DateTime? ExpiresUtc { get; set; }
 
         public string Error { get; set; }
+
+        [JsonIgnore]
+        public AuthTypes AuthType { get; set; } = AuthTypes.None;
+
+        public string AuthTypeName => this.AuthType.ToString().ToUpper();
     }
 }
