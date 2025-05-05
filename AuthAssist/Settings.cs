@@ -1,20 +1,37 @@
-﻿using AuthAssist.Broker;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using System.Threading.Tasks;
+using AuthAssist.Services.Google;
+using AuthAssist.Services.Microsoft;
 
 namespace AuthAssist
 {
     public class Settings
     {
-        public string Endpoint { get; set; } = "/api/auth";
+        internal const string COOKIE_RETURN_URL = "return_url";
+
+        internal const string COOKIE_NONCE = "nonce";
+
+        public GoogleSettings Google { get; private set; } = new();
+
+        public MicrosoftSettings Microsoft { get; private set; } = new();
+
+        public string Prefix { get; set; } = "/api/auth";
+
+        public string RedirectToLogin { get; set; } = null;
+
+        public string RedirectToAccessDenied { get; set; } = null;
+
+        public string RedirectToLoginError { get; set; } = null;
+
+        public string DefaultReturnUrl { get; set; } = "/";
 
         public bool RequireHttps { get; set; } = true;
+
+        public bool EnableTokenEndpoint { get; set; } = false;
 
         internal TimeSpan CookieDuration { get; set; }
 
@@ -25,13 +42,8 @@ namespace AuthAssist
             PropertyNameCaseInsensitive = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
         };
-
-        // Configure auth handler
-        public void UseAuthHandler<T>() where T : IAuthHandler
-            => this.AuthHandlerType = typeof(T);
-        internal Type AuthHandlerType { get; private set; } = typeof(DefaultAuthHandler);
 
         // Configure auth policies
         public void UseAuthPolicies(Action<AuthorizationOptions> applyAuthPolicies)
@@ -46,15 +58,9 @@ namespace AuthAssist
         // Configure cookie policy
         public CookiePolicyOptions CookiePolicyOptions { get; set; } = new CookiePolicyOptions
         {
-            HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
+            HttpOnly = global::Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
         };
 
-        public void UseNotFoundHandler(Func<HttpContext, Task> handler)
-            => this.HandleNotFound = handler;
-        internal Func<HttpContext, Task> HandleNotFound { get; private set; } = BrokerService.ShowNotFound;
 
-        public void UseErrorHandler(Func<HttpContext, Exception, Task> handler)
-            => this.HandleError = handler;
-        internal Func<HttpContext, Exception, Task> HandleError { get; private set; } = BrokerService.ShowError;
     }
 }

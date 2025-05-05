@@ -1,0 +1,16 @@
+body {
+    background: black;
+    color: white;
+    font-family: Arial;
+}
+
+a,
+a:active,
+a:visited {
+    color: #b6ff00;
+    text-decoration: none;
+}
+
+a:hover {
+    opacity: .9;
+}

@@ -1,0 +1,17 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Samples.WebUI.Components.Pages
+@inject NavigationManager navigationManager
+@inherits LayoutComponentBase
+
+<div class="main-layout">
+    <NavMenu />
+    <main>
+        @Body
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>

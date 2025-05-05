@@ -1,25 +1,52 @@
 ﻿using AuthAssist;
-using AuthAssist.Broker;
-using AuthAssist.Broker.Handlers;
+using AuthAssist.Routing;
+using AuthAssist.Routing.Pages;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using System;
+using AuthAssist.Services.Google;
+using AuthAssist.Services.Local;
+using AuthAssist.Services.Microsoft;
+using AuthAssist.Services;
 
+// Exception: Namespace does not match folder structure
+#pragma warning disable IDE0130
 namespace Microsoft.Extensions.DependencyInjection
+#pragma warning restore IDE0130
 {
     public static class AuthExtensions
     {
-        public static IServiceCollection AddAuthAssist(this IServiceCollection services, Action<Settings> applySettings = null)
+        public static IServiceCollection AddAuthAssist<TAuthHandlerType>(
+            this IServiceCollection services,
+            Action<Settings> applySettings = null)
+            where TAuthHandlerType : IAuthHandler
         {
             var settings = new Settings();
             applySettings?.Invoke(settings);
             services
-                .AddSingleton<IBrokerService, BrokerService>()
-                .AddTransient<IRequestHandler, LoginHandler>()
-                .AddTransient<IRequestHandler, LogoutHandler>()
-                .AddTransient<IRequestHandler, ExtendHandler>()
-                .AddTransient(typeof(IAuthHandler), settings.AuthHandlerType)
+                // User-provided auth handler
+                .AddTransient(typeof(IAuthHandler), typeof(TAuthHandlerType))
+
+                // Routing
+                .AddSingleton<IRouterService, RouterService>()
+                .AddTransient<IEndpoint, LoginPage>()
+                .AddTransient<IEndpoint, LogoutPage>()
+                .AddTransient<IEndpoint, ExtendPage>()
+                .AddTransient<IEndpoint, GooglePage>()
+                .AddTransient<IEndpoint, GoogleCallbackPage>()
+                .AddTransient<IEndpoint, MicrosoftPage>()
+                .AddTransient<IEndpoint, MicrosoftCallbackPage>()
+                .AddTransient<IEndpoint, TokenPage>()
+
+                // Services
+                .AddTransient<ILocalAuthService, LocalAuthService>()
+                .AddTransient<IGoogleAuthService, GoogleAuthService>()
+                .AddTransient<IMicrosoftAuthService, MicrosofAuthServive>()
+                .AddTransient<IAuthFacade, AuthFacade>()
+
+                // Configuration
                 .AddSingleton(settings);
+
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
@@ -27,12 +54,18 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.SlidingExpiration = false;
                     options.Events.OnRedirectToAccessDenied = context =>
                     {
-                        context.Response.StatusCode = 403;
+                        if (settings.RedirectToAccessDenied != null)
+                            context.Response.Redirect(settings.RedirectToAccessDenied);
+                        else
+                            context.Response.StatusCode = 403;
                         return System.Threading.Tasks.Task.CompletedTask;
                     };
                     options.Events.OnRedirectToLogin = context =>
                     {
-                        context.Response.StatusCode = 401;
+                        if (settings.RedirectToLogin != null)
+                            context.Response.Redirect(settings.RedirectToLogin);
+                        else
+                            context.Response.StatusCode = 401;
                         return System.Threading.Tasks.Task.CompletedTask;
                     };
                     settings.ApplyCookieOptions?.Invoke(options);
@@ -52,7 +85,7 @@ namespace Microsoft.Extensions.DependencyInjection
             app.UseAuthorization();
             app.Use(async (context, next) =>
             {
-                var broker = app.ApplicationServices.GetService<IBrokerService>();
+                var broker = app.ApplicationServices.GetService<IRouterService>();
                 await broker.Process(context, next);
             });
             return app;
