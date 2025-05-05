@@ -90,11 +90,11 @@ namespace Samples.WebApiDemo.Controllers
         [HttpGet("loginGoogle")]
         public async Task<IActionResult> LoginGoogle()
         {
-            var redirectUrl = Uri.EscapeDataString("https://localhost:3000/api/test/loginGoogle/success");
+            var redirectUrl = Uri.EscapeDataString("https://localhost:3000/test/loginGoogleSuccess");
             return await Task.FromResult(Redirect("https://localhost:3000/api/auth/google?returnUrl=" + redirectUrl));
         }
 
-        [HttpGet("loginGoogle/success")]
+        [HttpGet("loginGoogleSuccess")]
         public IActionResult LoginGoogleSuccess()
         {
             return Ok(new
@@ -107,11 +107,11 @@ namespace Samples.WebApiDemo.Controllers
         [HttpGet("loginMicrosoft")]
         public async Task<IActionResult> LoginMicrosoft()
         {
-            var redirectUrl = Uri.EscapeDataString("https://localhost:3000/api/test/loginMicrosoft/success");
+            var redirectUrl = Uri.EscapeDataString("https://localhost:3000/test/loginMicrosoftSuccess");
             return await Task.FromResult(Redirect("https://localhost:3000/api/auth/microsoft?returnUrl=" + redirectUrl));
         }
 
-        [HttpGet("loginMicrosoft/success")]
+        [HttpGet("loginMicrosoftSuccess")]
         public IActionResult LoginMicrosoftSuccess()
         {
             return Ok(new

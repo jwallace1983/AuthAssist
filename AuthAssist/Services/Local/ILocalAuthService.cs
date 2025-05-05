@@ -10,7 +10,7 @@ namespace AuthAssist.Services.Local
         
         Task<AuthResult> GetAuthenticatedUser(ClaimsPrincipal user);
         
-        Task Login(HttpContext context, AuthResult authResult, string redirect = null);
+        Task Login(HttpContext context, AuthResult authResult);
 
         Task Logout(HttpContext context);
     }

@@ -37,11 +37,12 @@ namespace AuthAssist.Services.Local
                     : AuthResult.FromError("user.invalid");
         }
 
-        public async Task Login(HttpContext context, AuthResult authResult, string redirectTo = null)
+        public async Task Login(HttpContext context, AuthResult authResult)
         {
             if (authResult.IsSuccess)
                 await LoadUser(context, authResult);
-            if (string.IsNullOrEmpty(redirectTo) == false) // If redirect
+            var redirectTo = this.GetRedirectUrl(context, authResult);
+            if (string.IsNullOrEmpty(redirectTo) == false)
                 context.Response.Redirect(redirectTo, false);
             else // Return response
                 await context.Response.WriteAsJsonAsync(authResult, _settings.JsonSerializerOptions);
@@ -53,12 +54,22 @@ namespace AuthAssist.Services.Local
             authResult.ExpiresUtc = DateTime.UtcNow.Add(_settings.CookieDuration);
             await context.SignInAsync(context.User);
         }
+
         public async Task<ClaimsPrincipal> CreatePrincipal(AuthResult authResult)
         {
             await _authHandler.AppendClaims(authResult);
             var claims = authResult.Claims.Select(c => new Claim(c.Key, c.Value));
             return new ClaimsPrincipal(new ClaimsIdentity(claims,
                 CookieAuthenticationDefaults.AuthenticationScheme));
+        }
+
+        public string GetRedirectUrl(HttpContext context, AuthResult authResult)
+        {
+            if (authResult.IsSuccess)
+                return context.Request.Cookies.TryGetValue(Settings.COOKIE_RETURN_URL, out var returnUrl)
+                    ? returnUrl : (_settings.DefaultReturnUrl ?? "/");
+            else
+                return _settings.RedirectToLoginError;
         }
 
         public async Task Logout(HttpContext context)

@@ -11,6 +11,10 @@ namespace AuthAssist
 {
     public class Settings
     {
+        internal const string COOKIE_RETURN_URL = "return_url";
+
+        internal const string COOKIE_NONCE = "nonce";
+
         public GoogleSettings GoogleIdp { get; private set; } = new();
 
         public MicrosoftSettings MicrosoftIdp { get; private set; } = new();
@@ -20,6 +24,8 @@ namespace AuthAssist
         public string RedirectToLogin { get; set; } = null;
 
         public string RedirectToAccessDenied { get; set; } = null;
+
+        public string RedirectToLoginError { get; set; } = null;
 
         public string DefaultReturnUrl { get; set; } = "/";
 
