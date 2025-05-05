@@ -4,7 +4,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>disable</Nullable>
-		<Version>1.0.5</Version>
+		<Version>1.1.0</Version>
 		<Title>AuthAssist</Title>
 		<Authors>Simplelink</Authors>
 		<Company>Simplelink</Company>
@@ -12,7 +12,7 @@
 		<Description>A lightweight, opinionated helper library for Microsoft Authentication configuration.</Description>
 		<RepositoryUrl>https://github.com/jwallace1983/AuthAssist</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageReleaseNotes>Update to .NET 8</PackageReleaseNotes>
+		<PackageReleaseNotes>Add social login</PackageReleaseNotes>
 		<PackageProjectUrl>https://github.com/jwallace1983/AuthAssist</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
